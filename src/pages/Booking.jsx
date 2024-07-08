@@ -545,7 +545,7 @@ function RepeatBooking({ onSet }) {
 					{frequency !== 'none' ? (
 						<select
 							id='repeat-end'
-							className='border border-border rounded-md p-2 w-full bg-input text-foreground focus:ring-primary focus:border-primary'
+							className='border border-border rounded-md p-2 w-full bg-input text-foreground focus:ring-primary focus:border-primary '
 							value={repeatEnd}
 							onChange={(e) => setRepeatEnd(e.target.value)}
 						>
