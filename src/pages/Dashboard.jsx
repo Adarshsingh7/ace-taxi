@@ -3,7 +3,7 @@
 import { Button } from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
 import { NavLink, Outlet } from 'react-router-dom';
-import ProtectedRoute from '../Protected';
+import ProtectedRoute from '../utils/Protected';
 
 const sharedClasses = {
 	flex: 'flex',

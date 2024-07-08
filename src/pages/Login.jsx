@@ -19,7 +19,7 @@ function Login() {
 
 	useEffect(() => {
 		if (isAuth) {
-			navigation('/app', { replace: true });
+			navigation(-1, { replace: true });
 		}
 	}, [isAuth, navigation]);
 

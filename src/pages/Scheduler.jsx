@@ -13,8 +13,7 @@ registerLicense(
 );
 
 import './scheduler.css';
-import { useEffect, useState } from 'react';
-
+import ProtectedRoute from '../utils/Protected';
 const initData = [
 	{
 		regNo: 'HV09 WLA',
@@ -113,7 +112,7 @@ const initData = [
 ];
 
 const AceScheduler = () => {
-	const [data, setData] = useState([]);
+	const data = JSON.parse(localStorage.getItem('bookings'));
 	const fieldsData = {
 		id: 'bookingId',
 		subject: { name: 'bookedByName' },
@@ -125,27 +124,6 @@ const AceScheduler = () => {
 		Readonly: { name: 'Readonly' },
 	};
 
-	useEffect(() => {
-		const fetchReq = async function () {
-			const response = await fetch(
-				`${import.meta.env.VITE_API_ACE_TESTURL}/api/Bookings/Today`,
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-					},
-				}
-			);
-			if (response.ok) {
-				const data = await response.json();
-				setData(data.bookings);
-				// console.log(data.bookings);
-			} else {
-				console.log(response);
-			}
-		};
-		fetchReq();
-	}, []);
-
 	const eventSettings = {
 		dataSource: data,
 		fields: fieldsData,
@@ -156,24 +134,22 @@ const AceScheduler = () => {
 		args.element.style.backgroundColor = args.data.backgroundColorRGB;
 	}
 
-	function onActionBegin(args) {
-		if (args.requestType === 'toolbarItemRendering') {
-			return 0;
-		}
-	}
+	const changeDate = (newDate) => {
+		// Logic to update the selectedDate state variable
+	};
 
 	return (
-		<ScheduleComponent
-			// height='550px'
-			currentView='Day'
-			selectedDate={new Date()}
-			eventSettings={eventSettings}
-			eventRendered={onEventRendered}
-			actionBegin={onActionBegin}
-			// enableAdaptiveUI={true}
-		>
-			<Inject services={[Day, Agenda]} />
-		</ScheduleComponent>
+		<ProtectedRoute>
+			<ScheduleComponent
+				currentView='Day'
+				// selectedDate={new Date()}
+				eventSettings={eventSettings}
+				eventRendered={onEventRendered}
+				// selectedDate={changeDate}
+			>
+				<Inject services={[Day, Agenda]} />
+			</ScheduleComponent>
+		</ProtectedRoute>
 	);
 };
 

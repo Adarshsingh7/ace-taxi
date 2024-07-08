@@ -30,6 +30,12 @@ const Navbar = () => {
 				>
 					Create
 				</Link>
+				<Link
+					to='/pusher'
+					className='text-lg font-bold uppercase'
+				>
+					p1
+				</Link>
 			</span>
 
 			<span className='flex gap-10'>

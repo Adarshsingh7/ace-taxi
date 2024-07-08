@@ -22,7 +22,7 @@ function Push() {
 				console.error('Failed to parse message data:', error);
 			}
 		}
-		channel.bind('my-event', handleBind);
+		// channel.bind('my-event', handleBind);
 
 		return () => {
 			channel.unbind('my-event', handleBind);

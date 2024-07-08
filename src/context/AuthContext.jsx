@@ -82,19 +82,11 @@ const AuthProvider = ({ children }) => {
 	};
 
 	// Function to handle logout logic (replace with your backend API call)
-	const logout = async () => {
-		setIsLoading(true);
-		try {
-			localStorage.removeItem('authToken');
-			localStorage.removeItem('username');
-			setCurrentUser(null);
-			setIsAuth(false);
-		} catch (error) {
-			console.error('Logout error:', error);
-			// Handle logout error
-		} finally {
-			setIsLoading(false);
-		}
+	const logout = () => {
+		localStorage.removeItem('authToken');
+		localStorage.removeItem('username');
+		setCurrentUser(null);
+		setIsAuth(false);
 	};
 
 	// Function to retrieve stored token from local storage (optional)
@@ -115,6 +107,7 @@ const AuthProvider = ({ children }) => {
 
 	// Check if user is authenticated based on token or currentUser
 	useEffect(() => {
+		setIsLoading(true);
 		const token = getToken();
 		const username = getUsername();
 		if (!token || !username) {
@@ -127,9 +120,8 @@ const AuthProvider = ({ children }) => {
 				token ? JSON.parse(localStorage.getItem('userData')) : null
 			);
 			setIsAuth(!!token); // Assuming token presence indicates auth
+			setIsLoading(false);
 		}
-
-		setIsLoading(false);
 	}, []); // Run only on component mount
 
 	const value = {
