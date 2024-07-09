@@ -63,21 +63,20 @@ function reducer(state, action) {
 
 function BookingProvider({ children }) {
 	const navigate = useNavigate();
-	const [callerId, setCallerId] = useState([]);
 	const [data, dispacher] = useReducer(reducer, initState);
+	const [callerId, setCallerId] = useState({});
+	const [callerTab, setCallerTab] = useState([]);
 
 	function insertValue(value) {
 		dispacher({ type: 'insertData', payload: value });
 	}
 
-	// this is the caller id use effect when we will get event the it will basically navigate to the pusher page
+	// this is the caller id use effect it will trigger dialog box when the caller id is received
 	useEffect(() => {
 		function handleBind(data) {
-			// navigate('/pusher');
 			try {
 				const parsedData = JSON.parse(data.message);
-				console.log(parsedData);
-				setCallerId((prev) => [...prev, parsedData]);
+				setCallerId(parsedData);
 			} catch (error) {
 				console.error('Failed to parse message data:', error);
 			}
@@ -86,7 +85,7 @@ function BookingProvider({ children }) {
 		return () => {
 			channel.unbind('my-event', handleBind);
 		};
-	}, [navigate]);
+	}, []);
 
 	// this function will fetch the bookings data from the server and store it in the local storage
 	const fetchReq = async function () {
@@ -100,8 +99,8 @@ function BookingProvider({ children }) {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					from: '2024-07-07T00:00',
-					to: '2024-07-09T23:59',
+					from: '2024-07-08T00:00',
+					to: '2024-07-10T23:59',
 				}),
 			}
 		);
@@ -114,6 +113,11 @@ function BookingProvider({ children }) {
 		}
 	};
 
+	// caller tab confirm setter function
+	function onCallerTab(newCaller) {
+		setCallerTab((prev) => [...prev, newCaller]);
+	}
+
 	// this use effect will refresh the booking every single minute
 	useEffect(() => {
 		const refreshData = setInterval(fetchReq, 1000 * 60);
@@ -123,7 +127,15 @@ function BookingProvider({ children }) {
 	});
 
 	return (
-		<BookingContext.Provider value={{ data, insertValue, callerId }}>
+		<BookingContext.Provider
+			value={{
+				data,
+				insertValue,
+				callerId,
+				onCallerTab,
+				callerTab,
+			}}
+		>
 			{children}
 		</BookingContext.Provider>
 	);

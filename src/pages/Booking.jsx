@@ -735,4 +735,5 @@ function VIABar({ data, onEdit, isEditing, setEditingItem }) {
 		</div>
 	);
 }
+
 export default Booking;

@@ -1,39 +1,60 @@
 /** @format */
-import Pusher from 'pusher-js';
+
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 import { useEffect, useState } from 'react';
+import { useBooking } from '../hooks/useBooking';
+import Booking from './Booking';
 
-// Pusher.logToConsole = true;
+export default function ScrollableTabsButtonForce() {
+	const { callerTab } = useBooking();
+	const [value, setValue] = useState(
+		callerTab.length - 1 >= 0 ? callerTab.length - 1 : 0
+	);
 
-const pusher = new Pusher('8d1879146140a01d73cf', {
-	cluster: 'eu',
-});
-
-const channel = pusher.subscribe('my-channel');
-
-function Push() {
-	const [messages, setMessages] = useState(null);
+	const handleChange = (event, newValue) => {
+		setValue(newValue);
+	};
 
 	useEffect(() => {
-		function handleBind(data) {
-			try {
-				const parsedData = JSON.parse(data.message);
-				setMessages(parsedData);
-			} catch (error) {
-				console.error('Failed to parse message data:', error);
-			}
-		}
-		// channel.bind('my-event', handleBind);
+		setValue(callerTab.length - 1 >= 0 ? callerTab.length - 1 : 0);
+	}, [callerTab.length]);
 
-		return () => {
-			channel.unbind('my-event', handleBind);
-		};
-	}, []);
 	return (
-		<div className=''>
-			{!messages ? <h1>Waiting for messages...</h1> : null}
-			{messages && <div>{JSON.stringify(messages)}</div>}
-		</div>
+		<Box
+			sx={{
+				margin: '1vh auto',
+				width: {
+					xs: '100%',
+					sm: '95%',
+					md: '80%',
+					lg: '70%',
+					xl: '50%',
+				},
+				borderColor: '#e5e7eb',
+				borderWidth: '1px',
+			}}
+		>
+			<Tabs
+				value={value}
+				sx={{ backgroundColor: '#e5e7eb' }}
+				onChange={handleChange}
+				variant='scrollable'
+				scrollButtons
+				allowScrollButtonsMobile
+				aria-label='scrollable force tabs example'
+			>
+				{callerTab.map((item, index) => (
+					<Tab
+						label={`Caller ${index + 1}`}
+						key={index}
+					/>
+				))}
+			</Tabs>
+			<Box>
+				<Booking />
+			</Box>
+		</Box>
 	);
 }
-
-export default Push;
