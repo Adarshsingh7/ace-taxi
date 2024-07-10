@@ -25,16 +25,10 @@ const Navbar = () => {
 					APP
 				</Link>
 				<Link
-					to='/create'
-					className='text-lg font-bold uppercase'
-				>
-					Create
-				</Link>
-				<Link
 					to='/pusher'
 					className='text-lg font-bold uppercase'
 				>
-					p1
+					create
 				</Link>
 			</span>
 

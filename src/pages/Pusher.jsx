@@ -6,9 +6,11 @@ import Box from '@mui/material/Box';
 import { useEffect, useState } from 'react';
 import { useBooking } from '../hooks/useBooking';
 import Booking from './Booking';
+import PageNotFound from './PageNotFound';
 
-export default function ScrollableTabsButtonForce() {
+export default function Pusher() {
 	const { callerTab } = useBooking();
+	console.log(callerTab);
 	const [value, setValue] = useState(
 		callerTab.length - 1 >= 0 ? callerTab.length - 1 : 0
 	);
@@ -29,8 +31,8 @@ export default function ScrollableTabsButtonForce() {
 					xs: '100%',
 					sm: '95%',
 					md: '80%',
-					lg: '70%',
-					xl: '50%',
+					lg: '45%',
+					xl: '45%',
 				},
 				borderColor: '#e5e7eb',
 				borderWidth: '1px',
@@ -52,8 +54,16 @@ export default function ScrollableTabsButtonForce() {
 					/>
 				))}
 			</Tabs>
+
 			<Box>
-				<Booking />
+				{callerTab.length === 0 ? (
+					<PageNotFound message='No New Callers Found' />
+				) : (
+					<Booking
+						bookingData={callerTab[value]}
+						key={Math.random() * 1000}
+					/>
+				)}
 			</Box>
 		</Box>
 	);

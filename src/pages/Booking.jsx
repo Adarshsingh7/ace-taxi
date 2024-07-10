@@ -8,21 +8,56 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { RRule } from 'rrule';
 import { useBooking } from '../hooks/useBooking';
 
-function Booking() {
-	const { data, insertValue } = useBooking();
-	const [returnBooking, setReturnBooking] = useState(false);
-	const [pickupAddress, setPickupAddress] = useState('');
-	const [pickupPostCode, setPickupPostCode] = useState('');
-	const [destinationAddress, setDestinationAddress] = useState('');
-	const [destinationPostCode, setDestinationPostCode] = useState('');
-	const [bookingDetails, setBookingDetails] = useState('');
-	const [price, setPrice] = useState('');
-	const [hours, setHours] = useState('');
-	const [minutes, setMinutes] = useState('');
+const initData = {
+	PickupAddress: '11 Ridgeway Road. Gillingham. Dorset',
+	PickupPostCode: 'SP8  4GH',
+	DestinationAddress: '10 Carrington Road. High Wycombe. Buckinghamshire',
+	DestinationPostCode: 'HP12 3HY',
+	Details: '',
+	PassengerName: 'Peter Farrell',
+	PhoneNumber: '03333444473',
+	Email: 'emma@1soft.co.uk',
+	ChargeFromBase: false,
+	Price: 0,
+	DurationMinutes: 20,
+	Scope: 0,
+	AccountNumber: null,
+};
+
+function Booking({ bookingData }) {
+	// const { data, insertValue } = useBooking();
+	console.log(bookingData);
+	const [returnBooking, setReturnBooking] = useState(
+		bookingData?.returnBooking || false
+	);
+	const [pickupAddress, setPickupAddress] = useState(
+		bookingData?.PickupAddress || ''
+	);
+	const [pickupPostCode, setPickupPostCode] = useState(
+		bookingData?.PickupPostCode || ''
+	);
+	const [destinationAddress, setDestinationAddress] = useState(
+		bookingData?.DestinationAddress || ''
+	);
+	const [destinationPostCode, setDestinationPostCode] = useState(
+		bookingData?.destinationPostCode || ''
+	);
+	const [bookingDetails, setBookingDetails] = useState(
+		bookingData?.Details || ''
+	);
+	const [price, setPrice] = useState(bookingData?.Price || '');
+	const [hours, setHours] = useState(bookingData?.hours || '');
+	const [minutes, setMinutes] = useState(bookingData?.minutes || '');
 
 	const [isPhoneModelActive, setIsPhoneModelActive] = useState(false);
 	const [isRepeatBookingModelActive, setIsRepeatBookingModelActive] =
 		useState(false);
+	const [passengerName, setPassengerName] = useState(
+		bookingData?.PassengerName || ''
+	);
+	const [phone, setPhone] = useState(bookingData?.PhoneNumber || '');
+	const [email, setEmail] = useState(bookingData?.Email || '');
+
 	const [isAddVIAOpen, setIsAddVIAOpen] = useState(false);
 
 	function toggleAddress() {
@@ -36,6 +71,22 @@ function Booking() {
 		e.preventDefault();
 		console.log('submitted');
 	}
+
+	// Set the initial state of the form fields whenever we will get new booking with caller id
+	useEffect(() => {
+		setPickupAddress(bookingData?.PickupAddress || '');
+		setPickupPostCode(bookingData?.PickupPostCode || '');
+		setDestinationAddress(bookingData?.DestinationAddress || '');
+		setDestinationPostCode(bookingData?.DestinationPostCode || '');
+		setBookingDetails(bookingData?.Details || '');
+		setPrice(bookingData?.Price || '');
+		setHours(bookingData?.hours || '');
+		setMinutes(bookingData?.minutes || '');
+		setPassengerName(bookingData?.PassengerName || '');
+		setPhone(bookingData?.PhoneNumber || '');
+		setEmail(bookingData?.Email || '');
+		setReturnBooking(bookingData?.returnBooking || false);
+	}, [bookingData]);
 
 	return (
 		<div className='min-h-screen bg-background text-foreground p-4'>
@@ -277,12 +328,16 @@ function Booking() {
 							required
 							type='text'
 							placeholder='Name'
+							value={passengerName}
+							onChange={(e) => setPassengerName(e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 						<input
 							required
 							type='text'
 							placeholder='Phone'
+							value={phone}
+							onChange={(e) => setPhone(e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 					</div>
@@ -292,6 +347,8 @@ function Booking() {
 							required
 							type='email'
 							placeholder='Email'
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 					</div>
