@@ -8,25 +8,9 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { RRule } from 'rrule';
 import { useBooking } from '../hooks/useBooking';
 
-const initData = {
-	PickupAddress: '11 Ridgeway Road. Gillingham. Dorset',
-	PickupPostCode: 'SP8  4GH',
-	DestinationAddress: '10 Carrington Road. High Wycombe. Buckinghamshire',
-	DestinationPostCode: 'HP12 3HY',
-	Details: '',
-	PassengerName: 'Peter Farrell',
-	PhoneNumber: '03333444473',
-	Email: 'emma@1soft.co.uk',
-	ChargeFromBase: false,
-	Price: 0,
-	DurationMinutes: 20,
-	Scope: 0,
-	AccountNumber: null,
-};
+function Booking({ bookingData, id }) {
+	const { updateValue } = useBooking();
 
-function Booking({ bookingData }) {
-	// const { data, insertValue } = useBooking();
-	console.log(bookingData);
 	const [returnBooking, setReturnBooking] = useState(
 		bookingData?.returnBooking || false
 	);
@@ -42,21 +26,10 @@ function Booking({ bookingData }) {
 	const [destinationPostCode, setDestinationPostCode] = useState(
 		bookingData?.destinationPostCode || ''
 	);
-	const [bookingDetails, setBookingDetails] = useState(
-		bookingData?.Details || ''
-	);
-	const [price, setPrice] = useState(bookingData?.Price || '');
-	const [hours, setHours] = useState(bookingData?.hours || '');
-	const [minutes, setMinutes] = useState(bookingData?.minutes || '');
 
 	const [isPhoneModelActive, setIsPhoneModelActive] = useState(false);
 	const [isRepeatBookingModelActive, setIsRepeatBookingModelActive] =
 		useState(false);
-	const [passengerName, setPassengerName] = useState(
-		bookingData?.PassengerName || ''
-	);
-	const [phone, setPhone] = useState(bookingData?.PhoneNumber || '');
-	const [email, setEmail] = useState(bookingData?.Email || '');
 
 	const [isAddVIAOpen, setIsAddVIAOpen] = useState(false);
 
@@ -72,21 +45,9 @@ function Booking({ bookingData }) {
 		console.log('submitted');
 	}
 
-	// Set the initial state of the form fields whenever we will get new booking with caller id
-	useEffect(() => {
-		setPickupAddress(bookingData?.PickupAddress || '');
-		setPickupPostCode(bookingData?.PickupPostCode || '');
-		setDestinationAddress(bookingData?.DestinationAddress || '');
-		setDestinationPostCode(bookingData?.DestinationPostCode || '');
-		setBookingDetails(bookingData?.Details || '');
-		setPrice(bookingData?.Price || '');
-		setHours(bookingData?.hours || '');
-		setMinutes(bookingData?.minutes || '');
-		setPassengerName(bookingData?.PassengerName || '');
-		setPhone(bookingData?.PhoneNumber || '');
-		setEmail(bookingData?.Email || '');
-		setReturnBooking(bookingData?.returnBooking || false);
-	}, [bookingData]);
+	function updateData(property, val) {
+		updateValue(id, property, val);
+	}
 
 	return (
 		<div className='min-h-screen bg-background text-foreground p-4'>
@@ -115,8 +76,11 @@ function Booking({ bookingData }) {
 								required
 								type='datetime-local'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								value={new Date().toISOString().slice(0, 16)}
-								onChange={() => {}}
+								value={
+									bookingData.PickupDateTime ||
+									new Date().toISOString().slice(0, 16)
+								}
+								onChange={(e) => updateData('PickupDateTime', e.target.value)}
 							/>
 
 							{returnBooking ? (
@@ -124,6 +88,8 @@ function Booking({ bookingData }) {
 									disabled={returnBooking ? false : true}
 									required
 									type='datetime-local'
+									value={bookingData.returnTime}
+									onChange={(e) => updateValue('returnTime', e.target.value)}
 									className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 								/>
 							) : (
@@ -150,7 +116,10 @@ function Booking({ bookingData }) {
 							open={isRepeatBookingModelActive}
 							setOpen={setIsRepeatBookingModelActive}
 						>
-							<RepeatBooking onSet={setIsRepeatBookingModelActive} />
+							<RepeatBooking
+								onSet={setIsRepeatBookingModelActive}
+								id={id}
+							/>
 						</Modal>
 					</div>
 
@@ -160,21 +129,24 @@ function Booking({ bookingData }) {
 							placeholder='Pickup Address'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 							required
-							value={pickupAddress}
-							onChange={(e) => setPickupAddress(e.target.value)}
+							value={bookingData.PickupAddress}
+							onChange={(e) => updateData('PickupAddress', e.target.value)}
 						/>
 						<input
 							type='text'
 							placeholder='Post Code'
 							required
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-							value={pickupPostCode}
-							onChange={(e) => setPickupPostCode(e.target.value)}
+							value={bookingData.PickupPostCode}
+							onChange={(e) => updateData('PickupPostCode', e.target.value)}
 						/>
 					</div>
 
 					<div className='flex justify-center mb-4'>
-						<button onClick={toggleAddress}>
+						<button
+							type='button'
+							onClick={toggleAddress}
+						>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
 								viewBox='0 0 24 24'
@@ -196,17 +168,19 @@ function Booking({ bookingData }) {
 							type='text'
 							placeholder='Destination Address'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-							value={destinationAddress}
+							value={bookingData.DestinationAddress}
 							required
-							onChange={(e) => setDestinationAddress(e.target.value)}
+							onChange={(e) => updateData('DestinationAddress', e.target.value)}
 						/>
 						<input
 							type='text'
 							placeholder='Post Code'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-							value={destinationPostCode}
+							value={bookingData.DestinationPostCode}
 							required
-							onChange={(e) => setDestinationPostCode(e.target.value)}
+							onChange={(e) =>
+								updateData('DestinationPostCode', e.target.value)
+							}
 						/>
 					</div>
 
@@ -214,8 +188,8 @@ function Booking({ bookingData }) {
 						<textarea
 							placeholder='Booking Details'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-							value={bookingDetails}
-							onChange={(e) => setBookingDetails(e.target.value)}
+							value={bookingData.BookingDetails}
+							onChange={(e) => updateData('BookingDetails', e.target.value)}
 						></textarea>
 					</div>
 
@@ -227,23 +201,30 @@ function Booking({ bookingData }) {
 							open={isAddVIAOpen}
 							setOpen={setIsAddVIAOpen}
 						>
-							<AddEditViaComponent onSet={setIsAddVIAOpen} />
+							<AddEditViaComponent
+								onSet={setIsAddVIAOpen}
+								id={id}
+							/>
 						</Modal>
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
 						<div className='flex items-center'>
 							<label className='mr-2'>Passengers</label>
-							<select className='w-full bg-input text-foreground p-2 rounded-lg border border-border'>
-								<option>1</option>
-								<option>2</option>
-								<option>3</option>
-								<option>4</option>
-								<option>5</option>
-								<option>6</option>
-								<option>7</option>
-								<option>8</option>
-								<option>9</option>
+							<select
+								value={bookingData.Passengers}
+								onChange={(e) => updateData('Passengers', e.target.value)}
+								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
+							>
+								<option value={1}>1</option>
+								<option value={2}>2</option>
+								<option value={3}>3</option>
+								<option value={4}>4</option>
+								<option value={5}>5</option>
+								<option value={6}>6</option>
+								<option value={7}>7</option>
+								<option value={8}>8</option>
+								<option value={9}>9</option>
 							</select>
 						</div>
 						<label className='flex items-center'>
@@ -264,17 +245,20 @@ function Booking({ bookingData }) {
 								type='number'
 								placeholder='Driver Price (£)'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								value={price}
+								value={bookingData.Price}
 								onChange={(e) =>
-									setPrice((curr) => {
-										const value = parseFloat(e.target.value);
-										if (
-											(!isNaN(value) && value >= 0) ||
-											e.target.value === ''
-										) {
-											return value;
-										} else return curr;
-									})
+									updateData(
+										'Price',
+										((curr) => {
+											const value = parseFloat(e.target.value);
+											if (
+												(!isNaN(value) && value >= 0) ||
+												e.target.value === ''
+											) {
+												return value;
+											} else return curr;
+										})()
+									)
 								}
 							/>
 						</div>
@@ -284,16 +268,19 @@ function Booking({ bookingData }) {
 								placeholder='Hours'
 								required
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								value={hours}
+								value={bookingData.hours}
 								onChange={(e) =>
-									setHours((curr) => {
-										const value = parseInt(e.target.value, 10);
-										if (!isNaN(value) && value >= 0 && value <= 59) {
-											return value;
-										} else if (e.target.value === '') {
-											return ''; // Allow clearing the input
-										} else return curr; // Reset to the previous valid state
-									})
+									updateData(
+										'hours',
+										((curr) => {
+											const value = parseInt(e.target.value, 10);
+											if (!isNaN(value) && value >= 0 && value <= 59) {
+												return value;
+											} else if (e.target.value === '') {
+												return '';
+											} else return curr;
+										})()
+									)
 								}
 							/>
 							<input
@@ -301,16 +288,19 @@ function Booking({ bookingData }) {
 								required
 								placeholder='Minutes'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border ml-2'
-								value={minutes}
+								value={bookingData.minutes}
 								onChange={(e) =>
-									setMinutes((curr) => {
-										const value = parseInt(e.target.value, 10);
-										if (!isNaN(value) && value >= 0 && value <= 59) {
-											return value;
-										} else if (e.target.value === '') {
-											return ''; // Allow clearing the input
-										} else return curr; // Reset to the previous valid state
-									})
+									updateData(
+										'minutes',
+										((curr) => {
+											const value = parseInt(e.target.value, 10);
+											if (!isNaN(value) && value >= 0 && value <= 59) {
+												return value;
+											} else if (e.target.value === '') {
+												return '';
+											} else return curr;
+										})()
+									)
 								}
 							/>
 						</div>
@@ -318,6 +308,8 @@ function Booking({ bookingData }) {
 							<span className='mr-2'>All Day</span>
 							<input
 								type='checkbox'
+								checked={bookingData.isAllDay}
+								onChange={(e) => updateData('isAllDay', e.target.checked)}
 								className='form-checkbox h-5 w-5 text-primary'
 							/>
 						</label>
@@ -328,16 +320,16 @@ function Booking({ bookingData }) {
 							required
 							type='text'
 							placeholder='Name'
-							value={passengerName}
-							onChange={(e) => setPassengerName(e.target.value)}
+							value={bookingData.PassengerName}
+							onChange={(e) => updateData('PassengerName', e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 						<input
 							required
 							type='text'
 							placeholder='Phone'
-							value={phone}
-							onChange={(e) => setPhone(e.target.value)}
+							value={bookingData.PhoneNumber}
+							onChange={(e) => updateData('PhoneNumber', e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 					</div>
@@ -347,8 +339,8 @@ function Booking({ bookingData }) {
 							required
 							type='email'
 							placeholder='Email'
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
+							value={bookingData.Email}
+							onChange={(e) => updateData('Email', e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 					</div>
@@ -359,14 +351,17 @@ function Booking({ bookingData }) {
 					</div>
 
 					<div className='flex justify-end space-x-4'>
-						<button className='bg-muted text-muted-foreground px-4 py-2 rounded-lg bg-gray-100'>
+						<button
+							className='bg-muted text-muted-foreground px-4 py-2 rounded-lg bg-gray-100'
+							type='button'
+						>
 							Cancel
 						</button>
 						<button
 							className='bg-primary text-primary-foreground px-4 py-2 rounded-lg text-white bg-gray-900'
 							type='submit'
 						>
-							Save
+							Create
 						</button>
 					</div>
 				</div>
@@ -448,11 +443,8 @@ function LongButton({ children, color = 'bg-red-700', ...props }) {
 	);
 }
 
-function RepeatBooking({ onSet }) {
-	const [frequency, setFrequency] = useState('none');
-	const [repeatEnd, setRepeatEnd] = useState('never');
-	const [repeatEndValue, setRepeatEndValue] = useState('');
-	const [selectedDays, setSelectedDays] = useState({
+function parseRecurrenceRule(rule) {
+	const daysOfWeek = {
 		sun: false,
 		mon: false,
 		tue: false,
@@ -460,7 +452,53 @@ function RepeatBooking({ onSet }) {
 		thu: false,
 		fri: false,
 		sat: false,
-	});
+	};
+
+	const ruleParts = rule.split(';');
+	const bydayPart = ruleParts.find((part) => part.startsWith('BYDAY='));
+
+	if (bydayPart) {
+		const days = bydayPart.replace('BYDAY=', '').split(',');
+		days.forEach((day) => {
+			switch (day) {
+				case 'SU':
+					daysOfWeek.sun = true;
+					break;
+				case 'MO':
+					daysOfWeek.mon = true;
+					break;
+				case 'TU':
+					daysOfWeek.tue = true;
+					break;
+				case 'WE':
+					daysOfWeek.wed = true;
+					break;
+				case 'TH':
+					daysOfWeek.thu = true;
+					break;
+				case 'FR':
+					daysOfWeek.fri = true;
+					break;
+				case 'SA':
+					daysOfWeek.sat = true;
+					break;
+				default:
+					break;
+			}
+		});
+	}
+
+	return daysOfWeek;
+}
+
+function RepeatBooking({ onSet, id }) {
+	const { data, updateValue } = useBooking();
+	const [frequency, setFrequency] = useState(data[id].frequency);
+	const [repeatEnd, setRepeatEnd] = useState(data[id].repeatEnd);
+	const [repeatEndValue, setRepeatEndValue] = useState(data[id].repeatEndValue);
+	const [selectedDays, setSelectedDays] = useState(
+		parseRecurrenceRule(data[id].recurrenceRule)
+	);
 
 	const handleClick = (day) => {
 		setSelectedDays((prevDays) => ({
@@ -481,10 +519,17 @@ function RepeatBooking({ onSet }) {
 
 	function submitForm(e) {
 		e.preventDefault();
-		console.log('submit initiated');
-		console.log(
-			calculateRecurrenceRule(frequency, repeatEndValue, selectedDays)
+		const rrule = calculateRecurrenceRule(
+			frequency,
+			repeatEndValue,
+			selectedDays
 		);
+		console.log(rrule);
+		updateValue(id, 'frequency', frequency);
+		updateValue(id, 'repeatEnd', repeatEnd);
+		updateValue(id, 'repeatEndValue', repeatEndValue);
+		updateValue(id, 'recurrenceRule', rrule);
+		onSet(false);
 	}
 
 	const calculateRecurrenceRule = (frequency, repeatEndValue, selectedDays) => {
@@ -612,6 +657,7 @@ function RepeatBooking({ onSet }) {
 					) : (
 						<select
 							disabled
+							required
 							id='repeat-end'
 							className='border border-border rounded-md p-2 w-full bg-input text-foreground focus:ring-primary focus:border-primary'
 							value={repeatEnd}
@@ -629,25 +675,15 @@ function RepeatBooking({ onSet }) {
 					>
 						Repeat End Date
 					</label>
-					{repeatEnd === 'until' ? (
-						<input
-							required
-							type='date'
-							value={repeatEndValue}
-							onChange={(e) => setRepeatEndValue(e.target.value)}
-							id='end-date'
-							className='border border-border rounded-md p-2 w-full bg-input text-foreground focus:ring-primary focus:border-primary'
-						/>
-					) : (
-						<input
-							disabled
-							type='date'
-							value={repeatEndValue}
-							onChange={() => {}}
-							id='end-date'
-							className='border border-border rounded-md p-2 w-full bg-input text-foreground focus:ring-primary focus:border-primary'
-						/>
-					)}
+					<input
+						disabled={repeatEnd === 'never'}
+						required
+						type='date'
+						value={repeatEndValue}
+						onChange={(e) => setRepeatEndValue(e.target.value)}
+						id='end-date'
+						className='border border-border rounded-md p-2 w-full bg-input text-foreground focus:ring-primary focus:border-primary'
+					/>
 				</div>
 				<div className='grid grid-cols-2 gap-4'>
 					<LongButton onClick={submitForm}>Confirm</LongButton>
@@ -663,8 +699,9 @@ function RepeatBooking({ onSet }) {
 	);
 }
 
-const AddEditViaComponent = ({ onSet }) => {
-	const [vias, setVias] = useState([]);
+const AddEditViaComponent = ({ onSet, id }) => {
+	const { updateValue, data } = useBooking();
+	const [vias, setVias] = useState(data[id].vias);
 	const [newViaAddress, setNewViaAddress] = useState('');
 	const [newViaPostcode, setNewViaPostcode] = useState('');
 
@@ -678,6 +715,11 @@ const AddEditViaComponent = ({ onSet }) => {
 			setNewViaPostcode('');
 		}
 	};
+
+	function handleSave() {
+		updateValue(id, 'vias', vias);
+		onSet(false);
+	}
 
 	return (
 		<div className='bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto'>
@@ -723,12 +765,23 @@ const AddEditViaComponent = ({ onSet }) => {
 					onChange={(e) => setNewViaPostcode(e.target.value)}
 					autoComplete='off'
 				/>
-				<LongButton onClick={handleAddVia}>Add New Via</LongButton>
-			</div>
-
-			<div className='mt-4'>
 				<LongButton
 					color='bg-gray-700'
+					onClick={handleAddVia}
+				>
+					Add New Via
+				</LongButton>
+			</div>
+
+			<div className='mt-4 flex flex-col gap-1'>
+				<LongButton
+					onClick={handleSave}
+					color='bg-green-700'
+				>
+					Save
+				</LongButton>
+				<LongButton
+					color='bg-red-700'
 					onClick={() => onSet(false)}
 				>
 					Cancel

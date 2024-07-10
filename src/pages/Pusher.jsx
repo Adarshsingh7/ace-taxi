@@ -9,8 +9,7 @@ import Booking from './Booking';
 import PageNotFound from './PageNotFound';
 
 export default function Pusher() {
-	const { callerTab } = useBooking();
-	console.log(callerTab);
+	const { callerTab, insertValue } = useBooking();
 	const [value, setValue] = useState(
 		callerTab.length - 1 >= 0 ? callerTab.length - 1 : 0
 	);
@@ -61,7 +60,9 @@ export default function Pusher() {
 				) : (
 					<Booking
 						bookingData={callerTab[value]}
-						key={Math.random() * 1000}
+						key={value}
+						insertValue={insertValue}
+						id={value}
 					/>
 				)}
 			</Box>

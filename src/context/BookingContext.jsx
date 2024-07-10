@@ -1,7 +1,5 @@
 /** @format */
-
 import { createContext, useEffect, useReducer, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Pusher from 'pusher-js';
 
 // connect to pusher for the caller id event
@@ -21,14 +19,15 @@ const initState = [
 		PickupPostCode: '',
 		DestinationAddress: '',
 		DestinationPostCode: '',
-		pickupDateTime: new Date().toISOString().slice(0, 16),
+		PickupDateTime: new Date().toISOString().slice(0, 16),
 		returnTime: '',
 		isReturn: false,
-		vias: [{ address: '', postalCode: '', id: 0 }],
-		passengers: 1,
+		vias: [{ address: 'test address', postalCode: 'test postal', id: 0 }],
+		Passengers: 5,
+		hours: 0,
 		minutes: 0,
 		durationText: '',
-		isAllDay: false,
+		isAllDay: true,
 		PassengerName: '',
 		PhoneNumber: '',
 		Email: 'adarsh@admin.in',
@@ -43,7 +42,7 @@ const initState = [
 			tue: false,
 			wed: false,
 			thu: false,
-			fri: false,
+			fri: true,
 			sat: false,
 		},
 		bookingDetails: '',
@@ -57,13 +56,37 @@ const initState = [
 function reducer(state, action) {
 	switch (action.type) {
 		case 'updateValue':
-			return state.map((item) =>
-				item.id === action.payload.id
+			return state.map((item, id) =>
+				id === action.payload.itemIndex
 					? { ...item, [action.payload.property]: action.payload.value }
 					: item
 			);
 		case 'addData':
 			return [...state, action.payload];
+		case 'updateVia':
+			return state.map((item, index) => {
+				if (index === action.payload.itemIndex) {
+					const updatedVias = item.vias.map((via, viaIndex) =>
+						viaIndex === action.payload.viaIndex
+							? { ...via, [action.payload.property]: action.payload.value }
+							: via
+					);
+					return { ...item, vias: updatedVias };
+				}
+				return item;
+			});
+		case 'addVia':
+			return state.map((item, index) => {
+				if (index === action.payload.itemIndex) {
+					const newVia = {
+						address: action.payload.property,
+						postalCode: action.payload.property,
+						id: item.vias.length,
+					};
+					return { ...item, vias: [...item.vias, newVia] };
+				}
+				return item;
+			});
 		default:
 			throw new Error('invalid type');
 	}
@@ -73,12 +96,16 @@ function BookingProvider({ children }) {
 	const [data, dispacher] = useReducer(reducer, initState);
 	const [callerId, setCallerId] = useState({});
 
-	function insertValue(id, property, value) {
-		dispacher({ type: 'insertData', payload: { id, value, property } });
+	function updateValue(itemIndex, property, value) {
+		dispacher({ type: 'updateValue', payload: { itemIndex, value, property } });
 	}
 
 	function insertData(data) {
-		dispacher({ type: 'insertData', payload: data });
+		dispacher({ type: 'addData', payload: data });
+	}
+
+	function addVia(itemIndex, property, value) {
+		dispacher({ type: 'addVia', payload: { itemIndex, property, value } });
 	}
 
 	// this is the caller id use effect it will trigger dialog box when the caller id is received
@@ -123,11 +150,6 @@ function BookingProvider({ children }) {
 		}
 	};
 
-	// caller tab confirm setter function
-	function onCallerTab(newCaller) {
-		insertData((prev) => [...prev, newCaller]);
-	}
-
 	// this use effect will refresh the booking every single minute
 	useEffect(() => {
 		const refreshData = setInterval(fetchReq, 1000 * 60);
@@ -140,10 +162,11 @@ function BookingProvider({ children }) {
 		<BookingContext.Provider
 			value={{
 				data,
-				insertValue,
+				updateValue,
 				callerId,
-				onCallerTab: insertData,
+				insertData,
 				callerTab: data,
+				addVia,
 			}}
 		>
 			{children}

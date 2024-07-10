@@ -3,8 +3,7 @@
 import Modal from './Modal';
 import { useBooking } from '../hooks/useBooking';
 import { useEffect, useState } from 'react';
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const tabButtonClass =
 	'w-1/2 py-2 text-center text-zinc-600 hover:text-zinc-800 focus:outline-none';
@@ -12,10 +11,51 @@ const activeTabButtonClass = 'border-b-2 border-black';
 const hiddenContentClass = 'hidden';
 
 function CallerIdPopUp() {
-	const { callerId, onCallerTab } = useBooking();
+	const { callerId, insertData } = useBooking();
 	const [activeTab, setActiveTab] = useState('tab1');
 	const [open, setOpen] = useState(callerId.length ? true : false);
 	const navigate = useNavigate();
+
+	function filterFiled(data) {
+		return {
+			returnBooking: false,
+			PickupAddress: data.PickupAddress,
+			PickupPostCode: data.PickupPostCode,
+			DestinationAddress: data.DestinationAddress,
+			DestinationPostCode: data.DestinationPostCode,
+			PickupDateTime: data.PickupDateTime,
+			returnTime: '',
+			isReturn: false,
+			vias: [{ address: 'test address', postalCode: 'test postal', id: 0 }],
+			Passengers: data.Passengers,
+			hours: data.hours || 0,
+			minutes: data.minutes,
+			durationText: '',
+			isAllDay: true,
+			PassengerName: data.PassengerName,
+			PhoneNumber: data.PhoneNumber,
+			Email: data.Email,
+			repeatBooking: false,
+			recurrenceRule: '',
+			frequency: 'none',
+			repeatEnd: 'never',
+			repeatEndValue: '',
+			selectedDays: {
+				sun: false,
+				mon: false,
+				tue: false,
+				wed: false,
+				thu: false,
+				fri: true,
+				sat: false,
+			},
+			bookingDetails: '',
+			Price: data.Price,
+			changeFromBase: 'false',
+			paymentStatus: 'none',
+			driver: {},
+		};
+	}
 
 	// the simple use effect to open the popup or modal
 	useEffect(() => {
@@ -29,17 +69,7 @@ function CallerIdPopUp() {
 	};
 
 	function handleSubmit(data) {
-		if (activeTab === 'tab1') {
-			onCallerTab({
-				type: 'Current',
-				data: data,
-			});
-		} else if (activeTab === 'tab2') {
-			onCallerTab({
-				type: 'Previous',
-				data: data,
-			});
-		}
+		insertData(filterFiled(data));
 
 		navigate('/pusher');
 		setOpen(false);
@@ -63,7 +93,6 @@ function CallerIdPopUp() {
 						id='account-content'
 						className={`p-4 ${activeTab === 'tab1' ? '' : hiddenContentClass}`}
 					>
-						<h2 className='text-xl font-bold mb-2'>this is tab 1</h2>
 						<ul>
 							{callerId?.Current?.length ? (
 								<>
@@ -86,7 +115,6 @@ function CallerIdPopUp() {
 					<div
 						className={`p-4 ${activeTab === 'tab2' ? '' : hiddenContentClass}`}
 					>
-						<h2 className='text-xl font-bold mb-2'>this is tab 2</h2>
 						<ul>
 							{callerId?.Previous?.length ? (
 								<>
@@ -111,40 +139,8 @@ function CallerIdPopUp() {
 	);
 }
 
-const initialBookingData = {
-	returnBooking: false, // or true, depending on what you want to test
-	pickupAddress: '123 Test St',
-	pickupPostCode: '12345',
-	destinationAddress: '456 Destination Ave',
-	destinationPostCode: '67890',
-	bookingDetails: 'Some details about the booking',
-	price: '100', // Assuming price is a string. Adjust if it's meant to be a number.
-	hours: '2', // Assuming hours is a string. Adjust if it's meant to be a number.
-	minutes: '30', // Assuming minutes is a string. Adjust if it's meant to be a number.
-	passengerName: 'John Doe',
-	email: 'test@user.in',
-	phone: '1234567890',
-};
-
 function TabContainer({ children, activeTab, switchTab, onOpen }) {
-	const { callerId, onCallerTab } = useBooking();
-	const navigate = useNavigate();
-
-	function handleSubmit() {
-		if (activeTab === 'tab1') {
-			onCallerTab({
-				type: 'Current',
-				data: initialBookingData || 'current content from caller id',
-			});
-		} else if (activeTab === 'tab2') {
-			onCallerTab({
-				type: 'Previous',
-				data: callerId.Previous || 'previous content from caller id',
-			});
-		}
-		navigate('/pusher');
-		onOpen(false);
-	}
+	const { callerId } = useBooking();
 
 	return (
 		<div className='max-w-md mx-auto p-6 bg-white rounded-lg shadow-md'>
@@ -170,14 +166,10 @@ function TabContainer({ children, activeTab, switchTab, onOpen }) {
 			{children}
 			<button
 				type='submit'
-				onClick={handleSubmit}
+				onClick={() => onOpen(false)}
 				className='w-full py-2 bg-primary text-white rounded-lg hover:bg-primary/80 focus:outline-none bg-black'
 			>
-				view booking{' '}
-				<ArrowOutwardIcon
-					color='white'
-					fontSize='24px'
-				/>
+				suspend
 			</button>
 		</div>
 	);
