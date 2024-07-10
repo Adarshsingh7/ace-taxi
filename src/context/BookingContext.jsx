@@ -1,5 +1,6 @@
 /** @format */
 import { createContext, useEffect, useReducer, useState } from 'react';
+import { getBookingData } from './../utils/apiReq';
 import Pusher from 'pusher-js';
 
 // connect to pusher for the caller id event
@@ -125,38 +126,13 @@ function BookingProvider({ children }) {
 		};
 	}, []);
 
-	// this function will fetch the bookings data from the server and store it in the local storage
-	const fetchReq = async function () {
-		const response = await fetch(
-			'https://api.acetaxisdorset.co.uk/api/Bookings/DateRange',
-			{
-				method: 'POST',
-				headers: {
-					'accept': '*/*',
-					'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					from: '2024-07-08T00:00',
-					to: '2024-07-10T23:59',
-				}),
-			}
-		);
-		if (response.ok) {
-			const data = await response.json();
-			localStorage.setItem('bookings', JSON.stringify(data.bookings));
-		} else {
-			console.log(response);
-		}
-	};
-
 	// this use effect will refresh the booking every single minute
 	useEffect(() => {
-		const refreshData = setInterval(fetchReq, 1000 * 60);
+		const refreshData = setInterval(getBookingData, 1000 * 60);
 		return () => {
 			clearInterval(refreshData);
 		};
-	});
+	}, []);
 
 	return (
 		<BookingContext.Provider
