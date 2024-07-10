@@ -43,7 +43,7 @@ const MainContent = () => {
 								Get Started Now
 							</Button>
 						</Link>
-						<Link to='/create'>
+						<Link to='/pusher'>
 							<button
 								className={` ${secondaryTextClass} border ${secondaryBgClass} py-2 px-4 rounded-lg flex items-center space-x-2`}
 							>
