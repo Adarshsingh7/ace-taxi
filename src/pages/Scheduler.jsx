@@ -43,12 +43,12 @@ const AceScheduler = () => {
 	}
 
 	useEffect(() => {
-		if (data) return;
+		// if (data) return;
 		getBookingData().then((data) => {
 			console.log(data);
 			setData(data.bookings);
 		});
-	}, [data]);
+	}, []);
 
 	return (
 		<ProtectedRoute>

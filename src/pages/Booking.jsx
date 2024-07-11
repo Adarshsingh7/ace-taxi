@@ -7,9 +7,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { RRule } from 'rrule';
 import { useBooking } from '../hooks/useBooking';
+import Autocomplete from '../components/AutoComplete';
 
 function Booking({ bookingData, id }) {
-	const { updateValue } = useBooking();
+	const { updateValue, onBooking } = useBooking();
 
 	const [returnBooking, setReturnBooking] = useState(
 		bookingData?.returnBooking || false
@@ -42,12 +43,28 @@ function Booking({ bookingData, id }) {
 
 	function handleSubmit(e) {
 		e.preventDefault();
+		onBooking(id);
 		console.log('submitted');
 	}
 
 	function updateData(property, val) {
 		updateValue(id, property, val);
 	}
+
+	function handleAddPickup(pickupAddress, pickupPostCode) {
+		updateValue(id, 'PickupAddress', pickupAddress);
+		updateValue(id, 'PickupPostCode', pickupPostCode);
+		// setPickupAddress(destinationAddress);
+		// setPickupPostCode(destinationPostCode);
+	}
+	function handleAddDestination(destinationAddress, destinationPostCode) {
+		updateValue(id, 'DestinationAddress', destinationAddress);
+		updateValue(id, 'DestinationPostCode', destinationPostCode);
+		// setPickupAddress(destinationAddress);
+		// setPickupPostCode(destinationPostCode);
+	}
+
+	if (!bookingData) return null;
 
 	return (
 		<div className='min-h-screen bg-background text-foreground p-4'>
@@ -77,7 +94,7 @@ function Booking({ bookingData, id }) {
 								type='datetime-local'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 								value={
-									bookingData.PickupDateTime ||
+									bookingData?.PickupDateTime ||
 									new Date().toISOString().slice(0, 16)
 								}
 								onChange={(e) => updateData('PickupDateTime', e.target.value)}
@@ -124,20 +141,25 @@ function Booking({ bookingData, id }) {
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-						<input
+						{/* <input
 							type='text'
 							placeholder='Pickup Address'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 							required
 							value={bookingData.PickupAddress}
 							onChange={(e) => updateData('PickupAddress', e.target.value)}
+						/> */}
+						<Autocomplete
+							placeholder='Pickup Address'
+							value={bookingData.PickupAddress}
+							onPushChange={handleAddPickup}
+							onChange={(e) => console.log('PickupAddress', e.target.value)}
 						/>
-						<input
-							type='text'
-							placeholder='Post Code'
+						<Autocomplete
 							required
-							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
+							placeholder='Post Code'
 							value={bookingData.PickupPostCode}
+							onPushChange={handleAddPickup}
 							onChange={(e) => updateData('PickupPostCode', e.target.value)}
 						/>
 					</div>
@@ -164,20 +186,17 @@ function Booking({ bookingData, id }) {
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-						<input
-							type='text'
-							placeholder='Destination Address'
-							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
+						<Autocomplete
+							placeholder='Pickup Address'
 							value={bookingData.DestinationAddress}
-							required
+							onPushChange={handleAddDestination}
 							onChange={(e) => updateData('DestinationAddress', e.target.value)}
 						/>
-						<input
-							type='text'
-							placeholder='Post Code'
-							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-							value={bookingData.DestinationPostCode}
+						<Autocomplete
 							required
+							placeholder='Post Code'
+							value={bookingData.DestinationPostCode}
+							onPushChange={handleAddDestination}
 							onChange={(e) =>
 								updateData('DestinationPostCode', e.target.value)
 							}

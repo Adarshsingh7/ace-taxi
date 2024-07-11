@@ -10,9 +10,8 @@ import PageNotFound from './PageNotFound';
 
 export default function Pusher() {
 	const { callerTab, insertValue } = useBooking();
-	console.log(callerTab);
 	const [value, setValue] = useState(
-		callerTab.length - 1 >= 0 ? callerTab.length - 1 : 0
+		callerTab.length === 0 ? 0 : callerTab.length -1
 	);
 
 	const handleChange = (event, newValue) => {

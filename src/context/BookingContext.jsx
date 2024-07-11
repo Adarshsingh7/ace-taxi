@@ -1,6 +1,6 @@
 /** @format */
 import { createContext, useEffect, useReducer, useState } from 'react';
-import { getBookingData } from './../utils/apiReq';
+import { getBookingData, handlePostReq } from './../utils/apiReq';
 import Pusher from 'pusher-js';
 
 // connect to pusher for the caller id event
@@ -88,6 +88,10 @@ function reducer(state, action) {
 				}
 				return item;
 			});
+		case 'submitBooking':
+			return (action.payload.itemIndex === 0) ?
+				state.map((item, idx) => idx === 0 ? initState[0] : item) :
+				state.filter((item, index) => index !== action.payload.itemIndex)
 		default:
 			throw new Error('invalid type');
 	}
@@ -107,6 +111,13 @@ function BookingProvider({ children }) {
 
 	function addVia(itemIndex, property, value) {
 		dispacher({ type: 'addVia', payload: { itemIndex, property, value } });
+	}
+
+	async function onBooking(itemIndex) {
+		const targetBooking  = data[itemIndex];
+		const res = await handlePostReq(JSON.stringify(targetBooking));
+		console.log(res);
+		dispacher({type: 'submitBooking', payload: {itemIndex}})
 	}
 
 	// this is the caller id use effect it will trigger dialog box when the caller id is received
@@ -138,8 +149,9 @@ function BookingProvider({ children }) {
 		<BookingContext.Provider
 			value={{
 				data,
-				updateValue,
 				callerId,
+				updateValue,
+				onBooking,
 				insertData,
 				callerTab: data,
 				addVia,
