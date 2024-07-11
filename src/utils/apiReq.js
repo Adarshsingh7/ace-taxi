@@ -94,6 +94,8 @@ async function handlePostReq(data) {
 			const data = await response.json();
 			console.log('data send successfully');
 			return data;
+		} else {
+			console.log(response);
 		}
 	} catch (err) {
 		console.log(err);
