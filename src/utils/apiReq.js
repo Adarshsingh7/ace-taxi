@@ -101,7 +101,6 @@ async function handlePostReq(data) {
 }
 
 async function getPoi(code) {
-	console.log(code);
 	try {
 		const URL = `${import.meta.env.VITE_API_ACE_TEST}/api/LocalPOI/GetPOI`;
 		const config = {
