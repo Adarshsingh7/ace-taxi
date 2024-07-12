@@ -3,55 +3,23 @@
 import axios from 'axios';
 const BASE = import.meta.env.VITE_API_ACE_TEST;
 
-// this function will fetch the bookings data from the server and store it in the local storage
-function createObjectForToday(today = new Date()) {
-	// Set time to 18:30:00
-	today.setHours(18, 30, 0, 0); // Hours, Minutes, Seconds, Milliseconds
+// utils function
+function convertDateString(inputDateString) {
+	// Parse the input date string
+	const date = new Date(inputDateString);
 
-	// Calculate "to" date by adding 24 hours
-	const toDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+	// Get the components of the date
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
 
-	// Format dates in ISO 8601
-	const formattedFrom = today.toISOString();
-	const formattedTo = toDate.toISOString();
+	// Construct the output date string
+	const outputDateString = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-	return {
-		from: formattedFrom,
-		to: formattedTo,
-	};
+	return outputDateString;
 }
-
-function setHeaders() {
-	const accessToken = localStorage.getItem('authToken');
-	if (!accessToken) return {};
-	return {
-		'accept': '*/*',
-		'Authorization': `Bearer ${accessToken}`,
-		'Content-Type': 'application/json',
-	};
-}
-
-const getBookingData = async function () {
-	try {
-		const accessToken = localStorage.getItem('authToken');
-		if (!accessToken) return;
-		const URL = `${BASE}/api/Bookings/DateRange`;
-		const response = await fetch(URL, {
-			method: 'POST',
-			headers: setHeaders(),
-			body: JSON.stringify(createObjectForToday()),
-		});
-		if (response.ok) {
-			const data = await response.json();
-			localStorage.setItem('bookings', JSON.stringify(data.bookings));
-			return data;
-		} else {
-			console.log(response);
-		}
-	} catch (err) {
-		console.log(err);
-	}
-};
 
 function filterData(data) {
 	return JSON.stringify({
@@ -82,25 +50,102 @@ function filterData(data) {
 	});
 }
 
-async function handlePostReq(data) {
+function createObjectForToday(today = new Date()) {
+	// Set time to 18:30:00
+	today.setHours(18, 30, 0, 0); // Hours, Minutes, Seconds, Milliseconds
+
+	// Calculate "to" date by adding 24 hours
+	const toDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+	// Format dates in ISO 8601
+	const formattedFrom = today.toISOString();
+	const formattedTo = toDate.toISOString();
+
+	return {
+		from: formattedFrom,
+		to: formattedTo,
+	};
+}
+
+function setHeaders() {
+	const accessToken = localStorage.getItem('authToken');
+	if (!accessToken) return {};
+	return {
+		'accept': '*/*',
+		'Authorization': `Bearer ${accessToken}`,
+		'Content-Type': 'application/json',
+	};
+}
+
+// event handlers
+// Event handlers
+async function handleGetReq(URL) {
 	try {
-		console.log(filterData(data));
-		const URL = `${BASE}/api/Bookings/Create`;
-		const response = await fetch(URL, {
-			method: 'POST',
-			headers: setHeaders(),
-			body: filterData(data),
-		});
-		if (response.ok) {
-			const data = await response.json();
-			console.log('data send successfully');
-			return data;
+		const response = await axios.get(URL, { headers: setHeaders() });
+		if (response.status >= 200 && response.status < 300) {
+			return { ...response.data, status: 'success' };
 		} else {
-			console.log(response);
+			console.log('Unexpected response status:', response);
+			return null;
 		}
 	} catch (err) {
-		console.log(err);
+		console.error('Error in GET request:', err);
+		return err.response.data;
 	}
+}
+
+async function handlePostReq(URL, data) {
+	try {
+		const response = await axios.post(URL, data, {
+			headers: setHeaders(),
+		});
+		if (response.status >= 200 && response.status < 300) {
+			return { ...response.data, status: 'success' };
+		} else {
+			console.log('Unexpected response status:', response);
+			return null;
+		}
+	} catch (err) {
+		return err.response;
+	}
+}
+
+async function makeBooking(data) {
+	const URL = BASE + '/api/Bookings/Create';
+	const filteredData = filterData(data);
+	return await handlePostReq(URL, filteredData);
+}
+
+const getBookingData = async function () {
+	const accessToken = localStorage.getItem('authToken');
+	if (!accessToken) return;
+
+	const URL = `${BASE}/api/Bookings/DateRange`;
+	const dataToSend = createObjectForToday();
+
+	// Use handlePostReq function
+	const response = await handlePostReq(URL, dataToSend);
+	if (response) {
+		localStorage.setItem('bookings', JSON.stringify(response.bookings));
+		return response;
+	} else {
+		console.log('Unexpected response:', response);
+	}
+};
+
+async function makeBookingQuoteRequest(data) {
+	const URL = BASE + '/api/Bookings/Quote';
+	console.log(data);
+	const requestData = {
+		pickupPostcode: data.pickupPostcode,
+		viaPostcodes: data.viaPostcodes,
+		destinationPostcode: data.destinationPostcode,
+		pickupDateTime: convertDateString(data.pickupDateTime),
+		passengers: data.passengers,
+		priceFromBase: data.priceFromBase,
+	};
+
+	return await handlePostReq(URL, requestData);
 }
 
 async function getPoi(code) {
@@ -117,4 +162,15 @@ async function getPoi(code) {
 	}
 }
 
-export { getBookingData, handlePostReq, getPoi };
+async function getAllDrivers() {
+	const URL = `${BASE}/api/UserProfile/ListUsers`;
+	return await handleGetReq(URL);
+}
+
+export {
+	getBookingData,
+	makeBooking,
+	getPoi,
+	makeBookingQuoteRequest,
+	getAllDrivers,
+};

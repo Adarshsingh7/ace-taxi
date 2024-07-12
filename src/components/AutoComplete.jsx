@@ -58,17 +58,12 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 		setFocus(true);
 	};
 
-	const handleBlur = () => {
-		// setFocus(false);
-	};
-
 	return (
 		<div className='relative'>
 			<input
 				type='text'
 				placeholder={placeholder}
 				onFocus={handleFocus}
-				onBlur={handleBlur}
 				value={value}
 				onChange={handleInputChange}
 				onKeyDown={handleKeyDown}

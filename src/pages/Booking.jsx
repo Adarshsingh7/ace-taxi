@@ -1,22 +1,25 @@
 /** @format */
 import { Button, Switch, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
-import Modal from '../components/Modal';
-import Dragger from '../components/Dragger';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { RRule } from 'rrule';
 import { useBooking } from '../hooks/useBooking';
 import Autocomplete from '../components/AutoComplete';
+import { useEffect, useState } from 'react';
+import Modal from '../components/Modal';
+import Dragger from '../components/Dragger';
+import { makeBookingQuoteRequest } from '../utils/apiReq';
+import SimpleSnackbar from '../components/SnackBar';
 
 function Booking({ bookingData, id }) {
 	const { updateValue, onBooking } = useBooking();
-
 	const [isPhoneModelActive, setIsPhoneModelActive] = useState(false);
 	const [isRepeatBookingModelActive, setIsRepeatBookingModelActive] =
 		useState(false);
-
 	const [isAddVIAOpen, setIsAddVIAOpen] = useState(false);
+	const [isQuoteSnackbarActive, setIsQuoteSnackbarActive] = useState(false);
+	const [isDriverModalActive, setDriverModalActive] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState('');
 
 	function toggleAddress() {
 		updateData('DestinationAddress', bookingData.PickupAddress);
@@ -59,6 +62,31 @@ function Booking({ bookingData, id }) {
 		new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })
 	);
 
+	async function findQuote() {
+		const quote = await makeBookingQuoteRequest({
+			pickupPostcode: bookingData.PickupPostCode,
+			viaPostcodes: bookingData.vias.map((via) => via.postcode),
+			destinationPostcode: bookingData.DestinationPostCode,
+			pickupDateTime: bookingData.PickupDateTime,
+			passengers: bookingData.Passengers,
+			priceFromBase: bookingData.changeFromBase,
+		});
+		if (quote.status === 'success') {
+			updateData('Price', quote.totalPrice);
+			setIsQuoteSnackbarActive(true);
+			setSnackbarMessage(
+				`£${quote.totalPrice} for ${quote.durationText} with ${quote.tariff}`
+			);
+		} else {
+			setIsQuoteSnackbarActive(true);
+			setSnackbarMessage('Failed to fetch quote');
+		}
+	}
+
+	function resetPrice() {
+		updateData('Price', '');
+	}
+
 	if (!bookingData) return null;
 
 	return (
@@ -67,19 +95,47 @@ function Booking({ bookingData, id }) {
 				action=''
 				onSubmit={handleSubmit}
 			>
+				<Modal
+					open={isPhoneModelActive}
+					setOpen={setIsPhoneModelActive}
+				>
+					<PhoneCheckModal setOpen={setIsPhoneModelActive} />
+				</Modal>
+				<Modal
+					open={isRepeatBookingModelActive}
+					setOpen={setIsRepeatBookingModelActive}
+				>
+					<RepeatBooking
+						onSet={setIsRepeatBookingModelActive}
+						id={id}
+					/>
+				</Modal>
+				<Modal
+					open={isDriverModalActive}
+					setOpen={setDriverModalActive}
+				>
+					<ListDrivers />
+				</Modal>
+				<Modal
+					open={isAddVIAOpen}
+					setOpen={setIsAddVIAOpen}
+				>
+					<AddEditViaComponent
+						onSet={setIsAddVIAOpen}
+						id={id}
+					/>
+				</Modal>
+				<SimpleSnackbar
+					reset={resetPrice}
+					open={isQuoteSnackbarActive}
+					setOpen={setIsQuoteSnackbarActive}
+					message={snackbarMessage}
+				/>
 				<div className='max-w-3xl mx-auto bg-card p-6 rounded-lg shadow-lg'>
 					<div className='mb-4'>
 						<LongButton onClick={() => setIsPhoneModelActive(true)}>
 							Phone Number Lookup
 						</LongButton>
-						{isPhoneModelActive && (
-							<Modal
-								open={isPhoneModelActive}
-								setOpen={setIsPhoneModelActive}
-							>
-								<PhoneCheckModal setOpen={setIsPhoneModelActive} />
-							</Modal>
-						)}
 					</div>
 
 					<div className='flex items-center justify-between mb-4'>
@@ -88,7 +144,7 @@ function Booking({ bookingData, id }) {
 								required
 								type='datetime-local'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								value={currDate}
+								value={bookingData.PickupDateTime || currDate}
 								onChange={(e) => updateData('PickupDateTime', e.target.value)}
 							/>
 
@@ -98,7 +154,7 @@ function Booking({ bookingData, id }) {
 									required
 									type='datetime-local'
 									value={bookingData.returnTime}
-									onChange={(e) => updateValue('returnTime', e.target.value)}
+									onChange={(e) => updateData('returnTime', e.target.value)}
 									className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 								/>
 							) : (
@@ -110,8 +166,9 @@ function Booking({ bookingData, id }) {
 								<span className='mr-2'>Return</span>
 								<Switch
 									color='error'
+									checked={bookingData.returnBooking}
 									onClick={() =>
-										updateValue('returnBooking', !bookingData.returnBooking)
+										updateData('returnBooking', !bookingData.returnBooking)
 									}
 								/>
 							</div>
@@ -123,15 +180,6 @@ function Booking({ bookingData, id }) {
 						<LongButton onClick={() => setIsRepeatBookingModelActive(true)}>
 							Repeat Booking
 						</LongButton>
-						<Modal
-							open={isRepeatBookingModelActive}
-							setOpen={setIsRepeatBookingModelActive}
-						>
-							<RepeatBooking
-								onSet={setIsRepeatBookingModelActive}
-								id={id}
-							/>
-						</Modal>
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
@@ -209,15 +257,6 @@ function Booking({ bookingData, id }) {
 						<LongButton onClick={() => setIsAddVIAOpen(true)}>
 							Add VIA
 						</LongButton>
-						<Modal
-							open={isAddVIAOpen}
-							setOpen={setIsAddVIAOpen}
-						>
-							<AddEditViaComponent
-								onSet={setIsAddVIAOpen}
-								id={id}
-							/>
-						</Modal>
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
@@ -241,22 +280,26 @@ function Booking({ bookingData, id }) {
 						</div>
 						<label className='flex items-center'>
 							<span className='mr-2'>Charge From Base</span>
-							<Switch color='error' />
+							<Switch
+								color='error'
+								checked={bookingData.changeFromBase}
+								onChange={() =>
+									updateData('changeFromBase', !bookingData.changeFromBase)
+								}
+							/>
 						</label>
 					</div>
 
 					<div className='mb-4'>
-						<LongButton>Get Quote</LongButton>
+						<LongButton onClick={findQuote}>Get Quote</LongButton>
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
 						<div className='flex items-center gap-2'>
 							<span>£</span>
-							<input
-								required
+							<Input
 								type='number'
 								placeholder='Driver Price (£)'
-								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 								value={bookingData.Price}
 								onChange={(e) =>
 									updateData(
@@ -276,7 +319,7 @@ function Booking({ bookingData, id }) {
 							/>
 						</div>
 						<div className='flex items-center'>
-							<input
+							<Input
 								type='number'
 								placeholder='Hours'
 								required
@@ -296,7 +339,7 @@ function Booking({ bookingData, id }) {
 									)
 								}
 							/>
-							<input
+							<Input
 								type='number'
 								required
 								placeholder='Minutes'
@@ -332,7 +375,7 @@ function Booking({ bookingData, id }) {
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-						<input
+						<Input
 							required
 							type='text'
 							placeholder='Name'
@@ -340,18 +383,23 @@ function Booking({ bookingData, id }) {
 							onChange={(e) => updateData('PassengerName', e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
-						<input
+						<Input
 							required
 							type='text'
 							placeholder='Phone'
 							value={bookingData.PhoneNumber}
-							onChange={(e) => updateData('PhoneNumber', e.target.value)}
+							onChange={(e) => {
+								const value = e.target.value;
+								// Remove non-numeric characters and limit to 12 digits
+								const cleanedValue = value.replace(/\D/g, '').slice(0, 12);
+								updateData('PhoneNumber', cleanedValue);
+							}}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 					</div>
 
 					<div className='mb-4'>
-						<input
+						<Input
 							required
 							type='email'
 							placeholder='Email'
@@ -363,7 +411,9 @@ function Booking({ bookingData, id }) {
 
 					<div className='flex justify-between gap-5 mb-5'>
 						<LongButton>Options</LongButton>
-						<LongButton>Allocate Driver</LongButton>
+						<LongButton onClick={() => setDriverModalActive(true)}>
+							Allocate Driver
+						</LongButton>
 					</div>
 
 					<div className='flex justify-end space-x-4'>
@@ -876,6 +926,25 @@ function VIABar({ data, onEdit, isEditing, setEditingItem }) {
 				)}
 			</div>
 		</div>
+	);
+}
+
+function Input({ value, onChange, placeholder, type }) {
+	return (
+		<TextField
+			type={type}
+			value={value}
+			onChange={onChange}
+			id='outlined-uncontrolled'
+			label={placeholder}
+			defaultValue='foo'
+		/>
+	);
+}
+
+function ListDrivers() {
+	return (
+		<div className='bg-white rounded-lg'> this is drivers list components </div>
 	);
 }
 

@@ -1,6 +1,6 @@
 /** @format */
 import { createContext, useEffect, useReducer, useState } from 'react';
-import { getBookingData, handlePostReq } from './../utils/apiReq';
+import { getBookingData, makeBooking } from './../utils/apiReq';
 import Pusher from 'pusher-js';
 
 // connect to pusher for the caller id event
@@ -20,14 +20,16 @@ const initState = [
 		PickupPostCode: '',
 		DestinationAddress: '',
 		DestinationPostCode: '',
-		PickupDateTime: new Date().toLocaleString(),
+		PickupDateTime: new Date().toLocaleString('en-GB', {
+			timeZone: 'Europe/London',
+		}),
 		returnTime: '',
 		isReturn: false,
 		vias: [],
 		Passengers: 5,
 		hours: 0,
 		minutes: 0,
-		durationText: '5',
+		durationText: '120',
 		isAllDay: false,
 		PassengerName: '',
 		PhoneNumber: '',
@@ -48,7 +50,7 @@ const initState = [
 		},
 		bookingDetails: '',
 		Price: '',
-		changeFromBase: 'false',
+		changeFromBase: false,
 		paymentStatus: 'none',
 		driver: {},
 	},
@@ -81,7 +83,7 @@ function reducer(state, action) {
 				if (index === action.payload.itemIndex) {
 					const newVia = {
 						address: action.payload.property,
-						postalCode: action.payload.property,
+						postCode: action.payload.property,
 						id: item.vias.length,
 					};
 					return { ...item, vias: [...item.vias, newVia] };
@@ -115,7 +117,7 @@ function BookingProvider({ children }) {
 
 	async function onBooking(itemIndex) {
 		const targetBooking = data[itemIndex];
-		const res = await handlePostReq(targetBooking);
+		const res = await makeBooking(targetBooking);
 		console.log(res);
 		dispacher({ type: 'submitBooking', payload: { itemIndex } });
 	}
