@@ -1,7 +1,7 @@
 /** @format */
 
 import axios from 'axios';
-const BASE = import.meta.env.VITE_API_ACE_TEST;
+const BASE = import.meta.env.VITE_API_ACE_LIVEURL;
 
 // utils function
 function convertDateString(inputDateString) {
@@ -106,7 +106,13 @@ async function handlePostReq(URL, data) {
 			return null;
 		}
 	} catch (err) {
-		return err.response;
+		return {
+			...err.response,
+			status: err.response.status > 499 ? 'error' : 'fail',
+			message: `${
+				err.response.status > 499 ? 'server error' : 'Failed'
+			} while fetching the data`,
+		};
 	}
 }
 

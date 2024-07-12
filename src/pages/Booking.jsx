@@ -50,6 +50,7 @@ function Booking({ bookingData, id }) {
 	}
 
 	const formatDateTimeLocal = (inputDate) => {
+		console.log(inputDate);
 		const date = new Date(inputDate);
 		const pad = (n) => String(n).padStart(2, '0');
 		const year = date.getFullYear();
@@ -60,9 +61,12 @@ function Booking({ bookingData, id }) {
 		return `${year}-${month}-${day}T${hours}:${minutes}`;
 	};
 
-	const currDate = formatDateTimeLocal(
-		new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })
-	);
+	const currDate = (date) => {
+		const updatedDate = formatDateTimeLocal(
+			date.toLocaleString('en-GB', { timeZone: 'Europe/London' })
+		);
+		return updatedDate;
+	};
 
 	function addDriverToBooking(driverId) {
 		setDriverModalActive(false);
@@ -102,45 +106,47 @@ function Booking({ bookingData, id }) {
 				action=''
 				onSubmit={handleSubmit}
 			>
-				<Modal
-					open={isPhoneModelActive}
-					setOpen={setIsPhoneModelActive}
-				>
-					<PhoneCheckModal setOpen={setIsPhoneModelActive} />
-				</Modal>
-				<Modal
-					open={isRepeatBookingModelActive}
-					setOpen={setIsRepeatBookingModelActive}
-				>
-					<RepeatBooking
-						onSet={setIsRepeatBookingModelActive}
-						id={id}
+				<>
+					<Modal
+						open={isPhoneModelActive}
+						setOpen={setIsPhoneModelActive}
+					>
+						<PhoneCheckModal setOpen={setIsPhoneModelActive} />
+					</Modal>
+					<Modal
+						open={isRepeatBookingModelActive}
+						setOpen={setIsRepeatBookingModelActive}
+					>
+						<RepeatBooking
+							onSet={setIsRepeatBookingModelActive}
+							id={id}
+						/>
+					</Modal>
+					<Modal
+						open={isDriverModalActive}
+						setOpen={setDriverModalActive}
+					>
+						<ListDrivers
+							onSet={addDriverToBooking}
+							id={id}
+						/>
+					</Modal>
+					<Modal
+						open={isAddVIAOpen}
+						setOpen={setIsAddVIAOpen}
+					>
+						<AddEditViaComponent
+							onSet={setIsAddVIAOpen}
+							id={id}
+						/>
+					</Modal>
+					<SimpleSnackbar
+						reset={resetPrice}
+						open={isQuoteSnackbarActive}
+						setOpen={setIsQuoteSnackbarActive}
+						message={snackbarMessage}
 					/>
-				</Modal>
-				<Modal
-					open={isDriverModalActive}
-					setOpen={setDriverModalActive}
-				>
-					<ListDrivers
-						onSet={addDriverToBooking}
-						id={id}
-					/>
-				</Modal>
-				<Modal
-					open={isAddVIAOpen}
-					setOpen={setIsAddVIAOpen}
-				>
-					<AddEditViaComponent
-						onSet={setIsAddVIAOpen}
-						id={id}
-					/>
-				</Modal>
-				<SimpleSnackbar
-					reset={resetPrice}
-					open={isQuoteSnackbarActive}
-					setOpen={setIsQuoteSnackbarActive}
-					message={snackbarMessage}
-				/>
+				</>
 				<div className='max-w-3xl mx-auto bg-card p-6 rounded-lg shadow-lg'>
 					<div className='mb-4'>
 						<LongButton onClick={() => setIsPhoneModelActive(true)}>
@@ -154,7 +160,7 @@ function Booking({ bookingData, id }) {
 								required
 								type='datetime-local'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								value={bookingData.PickupDateTime || currDate}
+								value={currDate(bookingData.PickupDateTime)}
 								onChange={(e) => updateData('PickupDateTime', e.target.value)}
 							/>
 

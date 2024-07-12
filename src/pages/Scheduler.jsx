@@ -16,11 +16,16 @@ import './scheduler.css';
 import ProtectedRoute from '../utils/Protected';
 import { getBookingData } from '../utils/apiReq';
 import { useEffect, useState } from 'react';
+import Snackbar from '../components/SnackBar';
 
 const AceScheduler = () => {
-	const [data, setData] = useState(
-		JSON.parse(localStorage.getItem('bookings'))
-	);
+	const [open, setOpen] = useState(false);
+	const [snackbarMessage, setSnackBarMessage] = useState('');
+	const [data, setData] = useState();
+	// localStorage.getItem('bookings')
+	// 	? JSON.parse(localStorage.getItem('bookings'))
+	// 	: []
+
 	const fieldsData = {
 		id: 'bookingId',
 		subject: { name: 'passengerName' },
@@ -43,21 +48,30 @@ const AceScheduler = () => {
 	}
 
 	useEffect(() => {
-		// if (data) return;
 		getBookingData().then((data) => {
 			console.log(data);
-			setData(data.bookings);
+			if (data.status === 'success') {
+				setData(data.bookings);
+				setSnackBarMessage('Booking Refreshed');
+			} else {
+				setSnackBarMessage(data.message);
+			}
+			setOpen(true);
 		});
 	}, []);
 
 	return (
 		<ProtectedRoute>
+			<Snackbar
+				message={snackbarMessage}
+				open={open}
+				isReset
+				setOpen={setOpen}
+			/>
 			<ScheduleComponent
 				currentView='Day'
-				// selectedDate={new Date()}
 				eventSettings={eventSettings}
 				eventRendered={onEventRendered}
-				// selectedDate={changeDate}
 			>
 				<Inject services={[Day, Agenda]} />
 			</ScheduleComponent>

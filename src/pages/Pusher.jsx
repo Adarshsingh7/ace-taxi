@@ -11,7 +11,7 @@ import PageNotFound from './PageNotFound';
 export default function Pusher() {
 	const { callerTab, insertValue } = useBooking();
 	const [value, setValue] = useState(
-		callerTab.length === 0 ? 0 : callerTab.length -1
+		callerTab.length === 0 ? 0 : callerTab.length - 1
 	);
 
 	const handleChange = (event, newValue) => {
@@ -30,6 +30,8 @@ export default function Pusher() {
 			<Box
 				sx={{
 					margin: '1vh auto',
+					height: '85vh',
+					overflow: 'auto',
 					width: '50%', // Adjusting the width to 50% for the first child Box
 					borderColor: '#e5e7eb',
 					borderWidth: '1px',
