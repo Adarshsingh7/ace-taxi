@@ -244,7 +244,7 @@ function Booking({ bookingData, id }) {
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
 						<Autocomplete
-							placeholder='Pickup Address'
+							placeholder='Destination Address'
 							value={bookingData.DestinationAddress}
 							onPushChange={handleAddDestination}
 							onChange={(e) => updateData('DestinationAddress', e.target.value)}
