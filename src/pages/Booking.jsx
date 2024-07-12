@@ -11,6 +11,7 @@ import Dragger from '../components/Dragger';
 import { makeBookingQuoteRequest, getAllDrivers } from '../utils/apiReq';
 import SimpleSnackbar from '../components/SnackBar';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Loader from './../components/Loader';
 
 function Booking({ bookingData, id }) {
 	const { updateValue, onBooking } = useBooking();
@@ -62,6 +63,11 @@ function Booking({ bookingData, id }) {
 	const currDate = formatDateTimeLocal(
 		new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })
 	);
+
+	function addDriverToBooking(driverId) {
+		setDriverModalActive(false);
+		updateData('userId', driverId);
+	}
 
 	async function findQuote() {
 		const quote = await makeBookingQuoteRequest({
@@ -115,7 +121,10 @@ function Booking({ bookingData, id }) {
 					open={isDriverModalActive}
 					setOpen={setDriverModalActive}
 				>
-					<ListDrivers />
+					<ListDrivers
+						onSet={addDriverToBooking}
+						id={id}
+					/>
 				</Modal>
 				<Modal
 					open={isAddVIAOpen}
@@ -943,9 +952,11 @@ function Input({ value, onChange, placeholder, type }) {
 	);
 }
 
-function ListDrivers() {
+function ListDrivers({ onSet, id }) {
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState([]);
+	const [selectedUser, setSelectedUser] = useState({});
+	const { updateValue, callerTab } = useBooking();
 
 	useEffect(() => {
 		getAllDrivers().then((res) => {
@@ -955,7 +966,11 @@ function ListDrivers() {
 		setLoading(false);
 	}, []);
 
-	console.log(data);
+	function handleAttactDriver(driver) {
+		onSet(setSelectedUser(driver.id));
+		updateValue(id, 'userId', driver.id);
+		console.log(callerTab[0]);
+	}
 
 	return (
 		<div className='bg-gray-100 px-2 py-10 rounded'>
@@ -969,24 +984,27 @@ function ListDrivers() {
 				<div>
 					<p className='text-2xl font-bold uppercase'>select driver</p>
 				</div>
-				<div className='m-auto w-full h-[50vh] overflow-auto'>
-					{loading
-						? 'loading...'
-						: data.map((el, idx) => (
-								<div
-									key={idx}
-									className='bg-gray-200 mb-2'
-								>
-									<div className='flex m-auto justify-center items-center align-middle gap-5'>
-										<div
-											style={{ backgroundColor: el.colorRGB }}
-											className={`h-5 w-5 rounded-full`}
-										></div>
-										<p className='text-2xl'>{el.fullName}</p>
-									</div>
-									<p>{el.regNo}</p>
+				<div className='m-auto w-full h-[50vh] overflow-auto relative'>
+					{loading ? (
+						<Loader />
+					) : (
+						data.map((el, idx) => (
+							<div
+								key={idx}
+								className='bg-gray-200 mb-2 cursor-pointer'
+								onClick={() => handleAttactDriver(el)}
+							>
+								<div className='flex m-auto justify-center items-center align-middle gap-5'>
+									<div
+										style={{ backgroundColor: el.colorRGB }}
+										className={`h-5 w-5 rounded-full`}
+									></div>
+									<p className='text-2xl'>{el.fullName}</p>
 								</div>
-						  ))}
+								<p>{el.regNo}</p>
+							</div>
+						))
+					)}
 				</div>
 			</div>
 		</div>
