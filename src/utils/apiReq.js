@@ -163,7 +163,7 @@ async function getPoi(code) {
 }
 
 async function getAllDrivers() {
-	const URL = `${BASE}/api/UserProfile/ListUsers`;
+	const URL = `https://api.acetaxisdorset.co.uk/api/UserProfile/ListUsers`;
 	return await handleGetReq(URL);
 }
 
