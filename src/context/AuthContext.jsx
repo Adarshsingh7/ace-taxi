@@ -1,7 +1,7 @@
 /** @format */
 
 import { createContext, useState, useEffect } from 'react';
-const BASEURL = import.meta.env.VITE_API_ACE_TEST;
+const BASEURL = import.meta.env.VITE_API_ACE_LIVEURL;
 
 const AuthContext = createContext({
 	currentUser: null,
