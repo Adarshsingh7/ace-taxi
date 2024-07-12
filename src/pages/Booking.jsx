@@ -12,22 +12,6 @@ import Autocomplete from '../components/AutoComplete';
 function Booking({ bookingData, id }) {
 	const { updateValue, onBooking } = useBooking();
 
-	const [returnBooking, setReturnBooking] = useState(
-		bookingData?.returnBooking || false
-	);
-	const [pickupAddress, setPickupAddress] = useState(
-		bookingData?.PickupAddress || ''
-	);
-	const [pickupPostCode, setPickupPostCode] = useState(
-		bookingData?.PickupPostCode || ''
-	);
-	const [destinationAddress, setDestinationAddress] = useState(
-		bookingData?.DestinationAddress || ''
-	);
-	const [destinationPostCode, setDestinationPostCode] = useState(
-		bookingData?.destinationPostCode || ''
-	);
-
 	const [isPhoneModelActive, setIsPhoneModelActive] = useState(false);
 	const [isRepeatBookingModelActive, setIsRepeatBookingModelActive] =
 		useState(false);
@@ -35,10 +19,10 @@ function Booking({ bookingData, id }) {
 	const [isAddVIAOpen, setIsAddVIAOpen] = useState(false);
 
 	function toggleAddress() {
-		setDestinationAddress(pickupAddress);
-		setDestinationPostCode(pickupPostCode);
-		setPickupAddress(destinationAddress);
-		setPickupPostCode(destinationPostCode);
+		updateData('DestinationAddress', bookingData.PickupAddress);
+		updateData('DestinationPostCode', bookingData.PickupPostCode);
+		updateData('PickupAddress', bookingData.DestinationAddress);
+		updateData('PickupPostCode', bookingData.DestinationPostCode);
 	}
 
 	function handleSubmit(e) {
@@ -52,17 +36,28 @@ function Booking({ bookingData, id }) {
 	}
 
 	function handleAddPickup(pickupAddress, pickupPostCode) {
-		updateValue(id, 'PickupAddress', pickupAddress);
-		updateValue(id, 'PickupPostCode', pickupPostCode);
-		// setPickupAddress(destinationAddress);
-		// setPickupPostCode(destinationPostCode);
+		updateData('PickupAddress', pickupAddress);
+		updateData('PickupPostCode', pickupPostCode);
 	}
 	function handleAddDestination(destinationAddress, destinationPostCode) {
-		updateValue(id, 'DestinationAddress', destinationAddress);
-		updateValue(id, 'DestinationPostCode', destinationPostCode);
-		// setPickupAddress(destinationAddress);
-		// setPickupPostCode(destinationPostCode);
+		updateData('DestinationAddress', destinationAddress);
+		updateData('DestinationPostCode', destinationPostCode);
 	}
+
+	const formatDateTimeLocal = (inputDate) => {
+		const date = new Date(inputDate);
+		const pad = (n) => String(n).padStart(2, '0');
+		const year = date.getFullYear();
+		const month = pad(date.getMonth() + 1);
+		const day = pad(date.getDate());
+		const hours = pad(date.getHours());
+		const minutes = pad(date.getMinutes());
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	};
+
+	const currDate = formatDateTimeLocal(
+		new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })
+	);
 
 	if (!bookingData) return null;
 
@@ -93,16 +88,13 @@ function Booking({ bookingData, id }) {
 								required
 								type='datetime-local'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								value={
-									bookingData?.PickupDateTime ||
-									new Date().toISOString().slice(0, 16)
-								}
+								value={currDate}
 								onChange={(e) => updateData('PickupDateTime', e.target.value)}
 							/>
 
-							{returnBooking ? (
+							{bookingData.returnBooking ? (
 								<input
-									disabled={returnBooking ? false : true}
+									disabled={bookingData.returnBooking ? false : true}
 									required
 									type='datetime-local'
 									value={bookingData.returnTime}
@@ -118,7 +110,9 @@ function Booking({ bookingData, id }) {
 								<span className='mr-2'>Return</span>
 								<Switch
 									color='error'
-									onClick={() => setReturnBooking(!returnBooking)}
+									onClick={() =>
+										updateValue('returnBooking', !bookingData.returnBooking)
+									}
 								/>
 							</div>
 							<></>
@@ -153,10 +147,9 @@ function Booking({ bookingData, id }) {
 							placeholder='Pickup Address'
 							value={bookingData.PickupAddress}
 							onPushChange={handleAddPickup}
-							onChange={(e) => console.log('PickupAddress', e.target.value)}
+							onChange={(e) => updateData('PickupAddress', e.target.value)}
 						/>
 						<Autocomplete
-							required
 							placeholder='Post Code'
 							value={bookingData.PickupPostCode}
 							onPushChange={handleAddPickup}
@@ -268,14 +261,15 @@ function Booking({ bookingData, id }) {
 								onChange={(e) =>
 									updateData(
 										'Price',
-										((curr) => {
+										(() => {
 											const value = parseFloat(e.target.value);
+											if (e.target.value === '') return '';
 											if (
 												(!isNaN(value) && value >= 0) ||
 												e.target.value === ''
 											) {
 												return value;
-											} else return curr;
+											} else return bookingData.Price;
 										})()
 									)
 								}
@@ -291,13 +285,13 @@ function Booking({ bookingData, id }) {
 								onChange={(e) =>
 									updateData(
 										'hours',
-										((curr) => {
+										(() => {
 											const value = parseInt(e.target.value, 10);
-											if (!isNaN(value) && value >= 0 && value <= 59) {
+											if (!isNaN(value) && value >= 0 && value <= 99) {
 												return value;
 											} else if (e.target.value === '') {
 												return '';
-											} else return curr;
+											} else return bookingData.hours;
 										})()
 									)
 								}
@@ -311,13 +305,16 @@ function Booking({ bookingData, id }) {
 								onChange={(e) =>
 									updateData(
 										'minutes',
-										((curr) => {
+										(() => {
 											const value = parseInt(e.target.value, 10);
 											if (!isNaN(value) && value >= 0 && value <= 59) {
 												return value;
 											} else if (e.target.value === '') {
 												return '';
-											} else return curr;
+											} else {
+												// If value is greater than 59, keep it unchanged
+												return Math.min(59, Math.max(0, value)); // Clamp value between 0 and 59
+											}
 										})()
 									)
 								}
@@ -740,6 +737,11 @@ const AddEditViaComponent = ({ onSet, id }) => {
 		onSet(false);
 	}
 
+	function handleSelect(address, postcode) {
+		setNewViaAddress(address);
+		setNewViaPostcode(postcode);
+	}
+
 	return (
 		<div className='bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto'>
 			<h2 className='text-2xl font-semibold mb-4 flex items-center'>
@@ -768,7 +770,7 @@ const AddEditViaComponent = ({ onSet, id }) => {
 			</div>
 
 			<div className='space-y-4'>
-				<input
+				{/* <input
 					type='text'
 					placeholder='Add Via Address'
 					className='w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -783,6 +785,18 @@ const AddEditViaComponent = ({ onSet, id }) => {
 					value={newViaPostcode}
 					onChange={(e) => setNewViaPostcode(e.target.value)}
 					autoComplete='off'
+				/> */}
+				<Autocomplete
+					placeholder='Add Via Address'
+					value={newViaAddress}
+					onChange={(e) => setNewViaAddress(e.target.value)}
+					onPushChange={handleSelect}
+				/>
+				<Autocomplete
+					placeholder='Add Via PostCode'
+					value={newViaPostcode}
+					onChange={(e) => setNewViaPostcode(e.target.value)}
+					onPushChange={handleSelect}
 				/>
 				<LongButton
 					color='bg-gray-700'
@@ -792,18 +806,18 @@ const AddEditViaComponent = ({ onSet, id }) => {
 				</LongButton>
 			</div>
 
-			<div className='mt-4 flex flex-col gap-1'>
-				<LongButton
-					onClick={handleSave}
-					color='bg-green-700'
-				>
-					Save
-				</LongButton>
+			<div className='mt-4 flex flex-row gap-1'>
 				<LongButton
 					color='bg-red-700'
 					onClick={() => onSet(false)}
 				>
 					Cancel
+				</LongButton>
+				<LongButton
+					onClick={handleSave}
+					color='bg-green-700'
+				>
+					Save
 				</LongButton>
 			</div>
 		</div>

@@ -23,7 +23,7 @@ const AceScheduler = () => {
 	);
 	const fieldsData = {
 		id: 'bookingId',
-		subject: { name: 'bookedByName' },
+		subject: { name: 'passengerName' },
 		isAllDay: { name: 'isAllDay' },
 		startTime: { name: 'pickupDateTime' },
 		endTime: { name: 'endTime' },

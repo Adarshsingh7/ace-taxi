@@ -1,6 +1,7 @@
 /** @format */
 
 import axios from 'axios';
+const BASE = import.meta.env.VITE_API_ACE_TEST;
 
 // this function will fetch the bookings data from the server and store it in the local storage
 function createObjectForToday(today = new Date()) {
@@ -34,8 +35,8 @@ const getBookingData = async function () {
 	try {
 		const accessToken = localStorage.getItem('authToken');
 		if (!accessToken) return;
-		const URL = import.meta.env.VITE_API_ACE_TEST;
-		const response = await fetch(`${URL}/api/Bookings/DateRange`, {
+		const URL = `${BASE}/api/Bookings/DateRange`;
+		const response = await fetch(URL, {
 			method: 'POST',
 			headers: setHeaders(),
 			body: JSON.stringify(createObjectForToday()),
@@ -84,8 +85,8 @@ function filterData(data) {
 async function handlePostReq(data) {
 	try {
 		console.log(filterData(data));
-		const URL = import.meta.env.VITE_API_ACE_TEST;
-		const response = await fetch(`${URL}/api/Bookings/Create`, {
+		const URL = `${BASE}/api/Bookings/Create`;
+		const response = await fetch(URL, {
 			method: 'POST',
 			headers: setHeaders(),
 			body: filterData(data),
@@ -104,7 +105,7 @@ async function handlePostReq(data) {
 
 async function getPoi(code) {
 	try {
-		const URL = `${import.meta.env.VITE_API_ACE_TEST}/api/LocalPOI/GetPOI`;
+		const URL = `${BASE}/api/LocalPOI/GetPOI`;
 		const config = {
 			headers: setHeaders(),
 		};
