@@ -347,6 +347,10 @@ function Booking({ bookingData, id }) {
 										(() => {
 											const value = parseInt(e.target.value, 10);
 											if (!isNaN(value) && value >= 0 && value <= 99) {
+												updateData(
+													'durationText',
+													value * 60 + bookingData.minutes
+												);
 												return value;
 											} else if (e.target.value === '') {
 												return '';
@@ -366,6 +370,10 @@ function Booking({ bookingData, id }) {
 										(() => {
 											const value = parseInt(e.target.value, 10);
 											if (!isNaN(value) && value >= 0 && value <= 59) {
+												updateData(
+													'durationText',
+													bookingData.hours * 60 + value
+												);
 												return value;
 											} else if (e.target.value === '') {
 												return '';
