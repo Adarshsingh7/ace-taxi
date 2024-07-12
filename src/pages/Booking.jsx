@@ -61,7 +61,7 @@ function Booking({ bookingData, id }) {
 		return `${year}-${month}-${day}T${hours}:${minutes}`;
 	};
 
-	const currDate = (date) => {
+	const currDate = (date = new Date()) => {
 		const updatedDate = formatDateTimeLocal(
 			date.toLocaleString('en-GB', { timeZone: 'Europe/London' })
 		);
@@ -359,7 +359,6 @@ function Booking({ bookingData, id }) {
 								type='number'
 								required
 								placeholder='Minutes'
-								className='w-full bg-input text-foreground 									  ))}lg border border-border ml-2'
 								value={bookingData.minutes}
 								onChange={(e) =>
 									updateData(

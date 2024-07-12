@@ -48,7 +48,7 @@ export default function Pusher() {
 				>
 					{callerTab.map((item, index) => (
 						<Tab
-							label={index === 0 ? 'New' : item.PhoneNumber}
+							label={index === 0 ? 'New Booking' : item.PhoneNumber}
 							key={index}
 						/>
 					))}

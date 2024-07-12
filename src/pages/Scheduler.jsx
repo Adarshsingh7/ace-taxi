@@ -7,6 +7,8 @@ import {
 	Inject,
 } from '@syncfusion/ej2-react-schedule';
 import { registerLicense } from '@syncfusion/ej2-base';
+import Modal from '../components/Modal';
+import CustomDialog from '../components/CustomDialog';
 
 registerLicense(
 	'Ngo9BigBOggjHTQxAR8/V1NCaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXhedHVUQ2hYVkN2V0c='
@@ -17,14 +19,15 @@ import ProtectedRoute from '../utils/Protected';
 import { getBookingData } from '../utils/apiReq';
 import { useEffect, useState } from 'react';
 import Snackbar from '../components/SnackBar';
+import { useNavigate } from 'react-router-dom';
 
 const AceScheduler = () => {
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [open, setOpen] = useState(false);
 	const [snackbarMessage, setSnackBarMessage] = useState('');
 	const [data, setData] = useState();
-	// localStorage.getItem('bookings')
-	// 	? JSON.parse(localStorage.getItem('bookings'))
-	// 	: []
+	const [selectedBookingData, setSelectedBookingData] = useState();
 
 	const fieldsData = {
 		id: 'bookingId',
@@ -37,11 +40,6 @@ const AceScheduler = () => {
 		Readonly: { name: 'Readonly' },
 	};
 
-	const eventSettings = {
-		dataSource: data,
-		fields: fieldsData,
-	};
-
 	function onEventRendered(args) {
 		args.element;
 		args.element.style.backgroundColor = args.data.backgroundColorRGB;
@@ -52,6 +50,7 @@ const AceScheduler = () => {
 			console.log(data);
 			if (data.status === 'success') {
 				setData(data.bookings);
+				localStorage.setItem('bookings', JSON.stringify(data.bookings));
 				setSnackBarMessage('Booking Refreshed');
 			} else {
 				setSnackBarMessage(data.message);
@@ -59,6 +58,20 @@ const AceScheduler = () => {
 			setOpen(true);
 		});
 	}, []);
+
+	const eventSettings = {
+		dataSource: data,
+		fields: fieldsData,
+		allowAdding: false,
+		allowEditing: false,
+		allowDeleting: false,
+	};
+
+	const onEventClick = (args) => {
+		setSelectedEvent(args.event);
+		setSelectedBookingData(args.event);
+		setDialogOpen(true);
+	};
 
 	return (
 		<ProtectedRoute>
@@ -72,11 +85,24 @@ const AceScheduler = () => {
 				currentView='Day'
 				eventSettings={eventSettings}
 				eventRendered={onEventRendered}
+				eventClick={onEventClick}
+				editorTemplate={null}
+				popupOpen={(args) => (args.cancel = true)}
 			>
+				{dialogOpen && (
+					<Modal
+						open={dialogOpen}
+						setOpen={setDialogOpen}
+					>
+						<CustomDialog
+							closeDialog={() => setDialogOpen(false)}
+							data={selectedBookingData}
+						/>
+					</Modal>
+				)}
 				<Inject services={[Day, Agenda]} />
 			</ScheduleComponent>
 		</ProtectedRoute>
 	);
 };
-
 export default AceScheduler;
