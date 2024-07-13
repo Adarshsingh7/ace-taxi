@@ -1,7 +1,7 @@
 /** @format */
 
 import axios from 'axios';
-const BASE = import.meta.env.VITE_API_ACE_LIVEURL;
+const BASE = import.meta.env.VITE_API_ACE_TEST;
 // https://api.getaddress.io/v2/uk/sp84aa?api-key=RCX7bLL_a0C5xaApbiBLFQ983
 
 // utils function

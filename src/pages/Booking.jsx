@@ -115,6 +115,7 @@ function Booking({ bookingData, id }) {
 	return (
 		<div className='min-h-screen bg-background text-foreground p-4'>
 			<form
+				autoComplete='off'
 				id='myForm'
 				action=''
 				onSubmit={handleSubmit}
@@ -471,7 +472,6 @@ function Booking({ bookingData, id }) {
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
 						<Input
-							required
 							type='text'
 							placeholder='Phone'
 							value={bookingData.PhoneNumber}
@@ -487,7 +487,6 @@ function Booking({ bookingData, id }) {
 
 					<div className='mb-4'>
 						<Input
-							required={true}
 							type='email'
 							placeholder='Email'
 							value={bookingData.Email}
@@ -1035,6 +1034,7 @@ function VIABar({ data, onEdit, isEditing, setEditingItem }) {
 function Input({ value, onChange, type, placeholder, required }) {
 	return (
 		<TextField
+			autoComplete='off'
 			required={required}
 			type={type}
 			value={value}
