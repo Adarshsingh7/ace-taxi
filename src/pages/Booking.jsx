@@ -33,7 +33,6 @@ function Booking({ bookingData, id }) {
 	function handleSubmit(e) {
 		e.preventDefault();
 		onBooking(id);
-		console.log('submitted');
 	}
 
 	function updateData(property, val) {
@@ -50,7 +49,6 @@ function Booking({ bookingData, id }) {
 	}
 
 	const formatDateTimeLocal = (inputDate) => {
-		console.log(inputDate);
 		const date = new Date(inputDate);
 		const pad = (n) => String(n).padStart(2, '0');
 		const year = date.getFullYear();
@@ -613,7 +611,6 @@ function RepeatBooking({ onSet, id }) {
 			repeatEndValue,
 			selectedDays
 		);
-		console.log(rrule);
 		updateValue(id, 'frequency', frequency);
 		updateValue(id, 'repeatEnd', repeatEnd);
 		updateValue(id, 'repeatEndValue', repeatEndValue);
@@ -810,7 +807,7 @@ const AddEditViaComponent = ({ onSet, id }) => {
 		onSet(false);
 	}
 
-	function handleSelect(address, postcode) {
+	function handleSelectAutocomplete(address, postcode) {
 		setNewViaAddress(address);
 		setNewViaPostcode(postcode);
 	}
@@ -843,33 +840,17 @@ const AddEditViaComponent = ({ onSet, id }) => {
 			</div>
 
 			<div className='space-y-4'>
-				{/* <input
-					type='text'
-					placeholder='Add Via Address'
-					className='w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
-					value={newViaAddress}
-					onChange={(e) => setNewViaAddress(e.target.value)}
-					autoComplete='off'
-				/>
-				<input
-					type='text'
-					placeholder='Add Via Postcode'
-					className='w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500'
-					value={newViaPostcode}
-					onChange={(e) => setNewViaPostcode(e.target.value)}
-					autoComplete='off'
-				/> */}
 				<Autocomplete
 					placeholder='Add Via Address'
 					value={newViaAddress}
 					onChange={(e) => setNewViaAddress(e.target.value)}
-					onPushChange={handleSelect}
+					onPushChange={handleSelectAutocomplete}
 				/>
 				<Autocomplete
 					placeholder='Add Via PostCode'
 					value={newViaPostcode}
 					onChange={(e) => setNewViaPostcode(e.target.value)}
-					onPushChange={handleSelect}
+					onPushChange={handleSelectAutocomplete}
 				/>
 				<LongButton
 					color='bg-gray-700'
@@ -982,7 +963,6 @@ function ListDrivers({ onSet, id }) {
 	function handleAttactDriver(driver) {
 		onSet(setSelectedUser(driver.id));
 		updateValue(id, 'userId', driver.id);
-		console.log(callerTab[0]);
 	}
 
 	return (

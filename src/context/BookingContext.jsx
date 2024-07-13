@@ -105,7 +105,7 @@ function BookingProvider({ children }) {
 	const [callerId, setCallerId] = useState({});
 
 	function updateValue(itemIndex, property, value) {
-		console.log({ itemIndex, property, value });
+		// console.log({ itemIndex, property, value });
 		dispacher({ type: 'updateValue', payload: { itemIndex, value, property } });
 	}
 

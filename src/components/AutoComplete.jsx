@@ -1,6 +1,6 @@
 /** @format */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getPoi } from '../utils/apiReq';
 
 const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
@@ -8,6 +8,13 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 	const [options, setOptions] = useState([]);
 	const [showOptions, setShowOptions] = useState(false);
 	const [focus, setFocus] = useState(false);
+	const [activeOptionIndex, setActiveOptionIndex] = useState(-1);
+
+	const inputRef = useRef(null);
+
+	useEffect(() => {
+		setInputValue(value);
+	}, [value]);
 
 	useEffect(() => {
 		if (inputValue.length < 3) {
@@ -16,15 +23,14 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 		}
 		async function fetchData() {
 			try {
-				// Replace 'getPoi' with your actual API fetching function
-				const response = await getPoi(inputValue); // Assuming getPoi is a function that fetches data from an API
+				const response = await getPoi(inputValue);
 				setOptions(
 					response.map((item) => ({
 						label: item.address,
 						...item,
 					}))
 				);
-				setShowOptions(true); // Show options when fetched
+				setShowOptions(true);
 			} catch (error) {
 				console.error('Error fetching data:', error);
 			}
@@ -37,34 +43,56 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 		const newValue = e.target.value;
 		setInputValue(newValue);
 		onChange(e);
+		setActiveOptionIndex(-1);
 	};
 
 	const handleSelectOption = (option) => {
 		console.log(option);
-		setInputValue(option.label);
 		onPushChange(option.address, option.postcode);
-		setOptions(options.filter((opt) => opt.label !== option.label)); // Remove selected option from suggestions
-		setShowOptions(false); // Hide options after selection
+		setOptions(options.filter((opt) => opt.label !== option.label));
+		setShowOptions(false);
 		setFocus(false);
+		setInputValue(value);
 	};
 
 	const handleKeyDown = (e) => {
 		if (e.key === 'Escape') {
-			setShowOptions(false); // Hide options on 'Esc' key press
+			setShowOptions(false);
+		} else if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			setActiveOptionIndex((prevIndex) =>
+				Math.min(prevIndex + 1, options.length - 1)
+			);
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			setActiveOptionIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+		} else if (e.key === 'Enter' && activeOptionIndex >= 0) {
+			e.preventDefault();
+			handleSelectOption(options[activeOptionIndex]);
 		}
 	};
 
-	const handleFocus = () => {
+	function handleFocus() {
 		setFocus(true);
-	};
+	}
+
+	function handleBlur() {
+		// Delay onBlur to allow option click to register
+		setTimeout(() => {
+			setFocus(false);
+			setShowOptions(false);
+		}, 500);
+	}
 
 	return (
 		<div className='relative'>
 			<input
 				type='text'
+				ref={inputRef}
 				placeholder={placeholder}
+				onBlur={handleBlur}
 				onFocus={handleFocus}
-				value={value}
+				value={inputValue}
 				onChange={handleInputChange}
 				onKeyDown={handleKeyDown}
 				className='px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full'
@@ -75,7 +103,9 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 						<li
 							key={index}
 							onClick={() => handleSelectOption(option)}
-							className='px-4 py-2 cursor-pointer hover:bg-gray-100'
+							className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+								index === activeOptionIndex ? 'bg-gray-200' : ''
+							}`}
 						>
 							{option.label}
 						</li>
