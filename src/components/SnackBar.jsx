@@ -6,7 +6,13 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function SimpleSnackbar({ open, setOpen, message, reset }) {
+export default function SimpleSnackbar({
+	open,
+	setOpen,
+	message,
+	reset,
+	disableReset,
+}) {
 	// const [open, setOpen] = React.useState(false);
 
 	const handleClose = (event, reason) => {
@@ -17,15 +23,22 @@ export default function SimpleSnackbar({ open, setOpen, message, reset }) {
 		setOpen(false);
 	};
 
+	function handleReset() {
+		reset();
+		setOpen(false);
+	}
+
 	const action = (
 		<React.Fragment>
-			<Button
-				color='primary'
-				size='small'
-				onClick={reset}
-			>
-				RESET
-			</Button>
+			{!disableReset ? (
+				<Button
+					color='primary'
+					size='small'
+					onClick={handleReset}
+				>
+					RESET
+				</Button>
+			) : null}
 			<IconButton
 				size='small'
 				aria-label='close'

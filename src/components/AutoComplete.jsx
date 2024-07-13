@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { getPoi } from '../utils/apiReq';
+import { TextField } from '@mui/material';
 
 const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 	const [inputValue, setInputValue] = useState(value || '');
@@ -86,10 +87,10 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 
 	return (
 		<div className='relative'>
-			<input
+			<TextField
 				type='text'
 				ref={inputRef}
-				placeholder={placeholder}
+				label={placeholder}
 				onBlur={handleBlur}
 				onFocus={handleFocus}
 				value={inputValue}

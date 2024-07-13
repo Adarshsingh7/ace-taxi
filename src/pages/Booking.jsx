@@ -12,6 +12,11 @@ import { makeBookingQuoteRequest, getAllDrivers } from '../utils/apiReq';
 import SimpleSnackbar from '../components/SnackBar';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Loader from './../components/Loader';
+import dayjs from 'dayjs';
+
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 function Booking({ bookingData, id }) {
 	const { updateValue, onBooking } = useBooking();
@@ -47,24 +52,6 @@ function Booking({ bookingData, id }) {
 		updateData('DestinationAddress', destinationAddress);
 		updateData('DestinationPostCode', destinationPostCode);
 	}
-
-	const formatDateTimeLocal = (inputDate) => {
-		const date = new Date(inputDate);
-		const pad = (n) => String(n).padStart(2, '0');
-		const year = date.getFullYear();
-		const month = pad(date.getMonth() + 1);
-		const day = pad(date.getDate());
-		const hours = pad(date.getHours());
-		const minutes = pad(date.getMinutes());
-		return `${year}-${month}-${day}T${hours}:${minutes}`;
-	};
-
-	const currDate = (date = new Date()) => {
-		const updatedDate = formatDateTimeLocal(
-			date.toLocaleString('en-GB', { timeZone: 'Europe/London' })
-		);
-		return updatedDate;
-	};
 
 	function addDriverToBooking(driverId) {
 		setDriverModalActive(false);
@@ -154,26 +141,59 @@ function Booking({ bookingData, id }) {
 
 					<div className='flex items-center justify-between mb-4'>
 						<div className='flex gap-5 flex-col md:flex-row'>
-							<input
+							<LocalizationProvider dateAdapter={AdapterDayjs}>
+								<DateTimePicker
+									label='Controlled picker'
+									value={dayjs(new Date(bookingData.PickupDateTime))}
+									onChange={(newVal) => {
+										if (
+											bookingData.returnTime &&
+											bookingData.returnTime < newVal
+										) {
+											setSnackbarMessage(
+												'return time cannot be less than pickuptime'
+											);
+											setIsQuoteSnackbarActive(true);
+											return bookingData.PickupDateTime;
+										}
+										return updateData('PickupDateTime', newVal);
+									}}
+								/>
+							</LocalizationProvider>
+							{/* <input
 								required
 								type='datetime-local'
 								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 								value={currDate(bookingData.PickupDateTime)}
 								onChange={(e) => updateData('PickupDateTime', e.target.value)}
-							/>
+							/> */}
 
 							{bookingData.returnBooking ? (
-								<input
-									disabled={bookingData.returnBooking ? false : true}
-									required
-									type='datetime-local'
-									value={bookingData.returnTime}
-									onChange={(e) => updateData('returnTime', e.target.value)}
-									className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-								/>
-							) : (
-								<div></div>
-							)}
+								// <input
+								// 	disabled={bookingData.returnBooking ? false : true}
+								// 	required
+								// 	type='datetime-local'
+								// 	value={bookingData.returnTime}
+								// 	onChange={(e) => updateData('returnTime', e.target.value)}
+								// 	className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
+								// />
+								<LocalizationProvider dateAdapter={AdapterDayjs}>
+									<DateTimePicker
+										label='Controlled picker'
+										value={dayjs(new Date(bookingData.returnTime))}
+										onChange={(newVal) => {
+											if (bookingData.PickupDateTime > newVal) {
+												setIsQuoteSnackbarActive(true);
+												setSnackbarMessage(
+													'return time cannot be less than pickuptime'
+												);
+												return bookingData.returnTime;
+											}
+											return updateData('returnTime', newVal);
+										}}
+									/>
+								</LocalizationProvider>
+							) : null}
 						</div>
 						<div className='flex gap-5 flex-col md:flex-row justify-between'>
 							<div>

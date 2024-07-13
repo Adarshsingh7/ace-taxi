@@ -119,7 +119,8 @@ async function handlePostReq(URL, data) {
 async function makeBooking(data) {
 	const URL = BASE + '/api/Bookings/Create';
 	const filteredData = filterData(data);
-	return await handlePostReq(URL, filteredData);
+	console.log(data);
+	// return await handlePostReq(URL, filteredData);
 }
 
 const getBookingData = async function () {

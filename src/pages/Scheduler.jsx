@@ -78,7 +78,7 @@ const AceScheduler = () => {
 			<Snackbar
 				message={snackbarMessage}
 				open={open}
-				isReset
+				disableReset={true}
 				setOpen={setOpen}
 			/>
 			<ScheduleComponent
