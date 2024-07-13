@@ -324,7 +324,7 @@ function Booking({ bookingData, id }) {
 						<textarea
 							placeholder='Booking Details'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
-							value={bookingData.BookingDetails}
+							value={bookingData.details}
 							onChange={(e) => updateData('details', e.target.value)}
 						></textarea>
 					</div>
