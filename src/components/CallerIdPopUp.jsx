@@ -45,6 +45,8 @@ function CallerIdPopUp() {
 				sat: false,
 			},
 			details: '',
+			scope: 0,
+			accountNumber: 0,
 			Price: data.Price,
 			changeFromBase: false,
 			paymentStatus: 'none',
@@ -74,6 +76,7 @@ function CallerIdPopUp() {
 			<CallerTable
 				bookings={callerId}
 				onConfirm={handleSubmit}
+				onSet={setOpen}
 			/>
 		</Modal>
 	);

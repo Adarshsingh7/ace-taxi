@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import 'tailwindcss/tailwind.css';
 
-const BookingTable = ({ bookings, onConfirm }) => {
+const BookingTable = ({ bookings, onConfirm, onSet }) => {
 	const [activeTab, setActiveTab] = useState('current-bookings');
 	const [selectedRow, setSelectedRow] = useState(null);
 	const isEmpty =
@@ -83,33 +83,42 @@ const BookingTable = ({ bookings, onConfirm }) => {
 				/>
 			</div>
 			<div className='mt-4'>
-				{isEmpty ? (
+				<div className='flex justify-between'>
+					{isEmpty ? (
+						<button
+							className='bg-green-500 text-white py-2 px-4 rounded'
+							onClick={handleCreateNewBookingWithTelephone}
+						>
+							New Booking
+						</button>
+					) : (
+						<>
+							{selectedRow !== undefined && selectedRow !== null ? (
+								<button
+									className='bg-green-500 text-white py-2 px-4 rounded'
+									onClick={confirmSelection}
+								>
+									Confirm
+								</button>
+							) : (
+								<button
+									disabled
+									className='bg-gray-500 text-white py-2 px-4 rounded'
+									onClick={confirmSelection}
+								>
+									select one
+								</button>
+							)}
+						</>
+					)}
 					<button
-						className='bg-green-500 text-white py-2 px-4 rounded'
-						onClick={handleCreateNewBookingWithTelephone}
+						disabled
+						className='bg-red-500 text-white py-2 px-4 rounded'
+						onClick={() => onSet(false)}
 					>
-						New Booking
+						cancel
 					</button>
-				) : (
-					<>
-						{selectedRow !== undefined && selectedRow !== null ? (
-							<button
-								className='bg-green-500 text-white py-2 px-4 rounded'
-								onClick={confirmSelection}
-							>
-								Confirm
-							</button>
-						) : (
-							<button
-								disabled
-								className='bg-gray-500 text-white py-2 px-4 rounded'
-								onClick={confirmSelection}
-							>
-								select one
-							</button>
-						)}
-					</>
-				)}
+				</div>
 			</div>
 		</div>
 	);

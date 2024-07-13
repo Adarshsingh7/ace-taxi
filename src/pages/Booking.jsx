@@ -498,7 +498,7 @@ function Booking({ bookingData, id }) {
 					{currentUser?.isAdmin ? (
 						<>
 							<p>options</p>
-							<div className='options mb-4 flex justify-between gap-3'>
+							<div className='options mb-4 flex justify-between gap-3 align-middle items-center'>
 								{/* <Input
 							type='text'
 							placeholder='Payment Status'
@@ -506,25 +506,70 @@ function Booking({ bookingData, id }) {
 							onChange={(e) => updateData('options', e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/> */}
+								<p className='text-gray-700 text-sm'>status:</p>
 								<select
-									name='option'
+									name='status'
+									onChange={(e) => updateData('paymentStatus', +e.target.value)}
 									id='options'
+									value={bookingData.paymentStatus}
 									className='block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
 								>
-									<option value='paid'>Paid</option>
-									<option value='await'>Awaiting payment</option>
+									<option value={0}>None</option>
+									<option value={2}>Paid</option>
+									<option value={3}>Awaiting payment</option>
 								</select>
+								<p className='text-gray-700 text-sm'>scope:</p>
 								<select
-									name='option'
+									name='scope'
 									id='options'
+									value={bookingData.scope}
+									onChange={(e) => updateData('scope', +e.target.value)}
 									className='block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
 								>
-									<option value='cast'>Cash</option>
-									<option value='account'>Account</option>
-									<option value='rank'>Rank</option>
-									<option value='all'>All</option>
+									<option value={0}>Cash</option>
+									<option value={1}>Account</option>
+									<option value={2}>Rank</option>
+									<option value={3}>All</option>
 								</select>
 							</div>
+							{bookingData.scope === 1 ? (
+								// <Autocomplete
+								// 	placeholder='booking scope'
+								// 	onPushChange={(accountNumber) =>
+								// 		updateData('accountNumber', accountNumber)
+								// 	}
+								// 	onChange={() => {}}
+								// 	value={bookingData.accountNumber}
+								// 	type={'scope'}
+								// />
+								<div>
+									<p className='text-gray-700 text-sm'>account number</p>
+									<select
+										name='account'
+										id='account'
+										value={bookingData.accountNumber}
+										onChange={(e) =>
+											updateData('accountNumber', +e.target.value)
+										}
+										className='mb-10 block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
+									>
+										{JSON.parse(localStorage.getItem('accounts')).map((el) => (
+											<>
+												{el.accountName && (
+													<option
+														key={el.accNo}
+														value={el.accNo}
+													>
+														{el.accNo === 0
+															? 'select'
+															: `${el.accNo}-${el.accountName}`}
+													</option>
+												)}
+											</>
+										))}
+									</select>
+								</div>
+							) : null}
 						</>
 					) : null}
 

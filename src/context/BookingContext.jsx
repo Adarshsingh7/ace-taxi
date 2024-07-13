@@ -49,9 +49,11 @@ const initState = [
 		},
 		details: '',
 		Price: '',
+		scope: 0,
 		changeFromBase: false,
-		paymentStatus: 'none',
+		paymentStatus: 0,
 		driver: {},
+		accountNumber: 0,
 		userId: '',
 	},
 ];

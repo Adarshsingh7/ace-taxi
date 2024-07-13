@@ -1,7 +1,7 @@
 /** @format */
 
 import axios from 'axios';
-const BASE = import.meta.env.VITE_API_ACE_TEST;
+const BASE = 'https://abacusonline-001-site1.atempurl.com';
 // https://api.getaddress.io/v2/uk/sp84aa?api-key=RCX7bLL_a0C5xaApbiBLFQ983
 
 // utils function
@@ -47,6 +47,7 @@ function filterData(data) {
 		userId: data.userId || null,
 		returnDateTime: data.ReturnDateTime || null,
 		vias: data.vias,
+		accountNumber: data.accountNumber,
 		bookedByName: data.bookedByName || '',
 	});
 }
@@ -183,10 +184,25 @@ async function getPostal(code) {
 }
 
 async function getAllDrivers() {
-	const URL = `https://api.acetaxisdorset.co.uk/api/UserProfile/ListUsers`;
+	const URL = `${BASE}/api/UserProfile/ListUsers`;
 	return await handleGetReq(URL);
 }
 
+async function getAccountList() {
+	const URL = `${BASE}/api/Accounts/GetList`;
+	const data = await handleGetReq(URL);
+	if (data.status === 'success') {
+		const formatedData = Object.keys(data).map((el) => data[el]);
+		localStorage.setItem(
+			'accounts',
+			JSON.stringify([...formatedData, { accNo: 0, accountName: 'select' }])
+		);
+	}
+}
+
+if (!localStorage.getItem('accounts')) {
+	getAccountList();
+}
 export {
 	getBookingData,
 	makeBooking,
@@ -194,4 +210,5 @@ export {
 	makeBookingQuoteRequest,
 	getAllDrivers,
 	getPostal,
+	getAccountList,
 };
