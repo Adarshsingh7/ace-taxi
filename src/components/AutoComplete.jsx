@@ -1,10 +1,10 @@
 /** @format */
 
 import { useState, useEffect, useRef } from 'react';
-import { getPoi } from '../utils/apiReq';
+import { getPoi, getPostal } from '../utils/apiReq';
 import { TextField } from '@mui/material';
 
-const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
+const Autocomplete = ({ placeholder, onPushChange, onChange, value, type }) => {
 	const [inputValue, setInputValue] = useState(value || '');
 	const [options, setOptions] = useState([]);
 	const [showOptions, setShowOptions] = useState(false);
@@ -22,7 +22,7 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 			setOptions([]);
 			return;
 		}
-		async function fetchData() {
+		async function fetchPoi() {
 			try {
 				const response = await getPoi(inputValue);
 				setOptions(
@@ -36,8 +36,35 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 				console.error('Error fetching data:', error);
 			}
 		}
+		async function getPostalID() {
+			const response = await getPostal(inputValue);
+			if (response.status === 'success') {
+				console.log(response.Addresses);
+				setOptions(
+					response.Addresses.map((item) => {
+						console.log(item);
+						const filteredAddress = item
+							.split(',')
+							.map((part) => part.trim())
+							.filter((part) => part.length > 0)
+							.join(', ');
 
-		fetchData();
+						return {
+							label: filteredAddress,
+							postcode: inputValue,
+							address: filteredAddress,
+							raw: item, // Retain the original address for reference if needed
+						};
+					})
+				);
+				setShowOptions(true);
+			}
+		}
+		if (type === 'postal') {
+			getPostalID();
+		} else {
+			fetchPoi();
+		}
 	}, [inputValue]);
 
 	const handleInputChange = (e) => {
@@ -91,6 +118,7 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 				type='text'
 				ref={inputRef}
 				label={placeholder}
+				required
 				onBlur={handleBlur}
 				onFocus={handleFocus}
 				value={inputValue}
@@ -99,7 +127,7 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value }) => {
 				className='px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full'
 			/>
 			{showOptions && focus && inputValue.length > 0 && (
-				<ul className='absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg'>
+				<ul className='absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-[40vh] overflow-auto'>
 					{options.map((option, index) => (
 						<li
 							key={index}

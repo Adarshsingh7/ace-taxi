@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 const BASE = import.meta.env.VITE_API_ACE_LIVEURL;
+// https://api.getaddress.io/v2/uk/sp84aa?api-key=RCX7bLL_a0C5xaApbiBLFQ983
 
 // utils function
 function convertDateString(inputDateString) {
@@ -23,7 +24,7 @@ function convertDateString(inputDateString) {
 
 function filterData(data) {
 	return JSON.stringify({
-		details: data.bookingDetails,
+		details: data.details,
 		email: data.Email,
 		durationMinutes: data.durationText,
 		isAllDay: data.isAllDay,
@@ -90,7 +91,13 @@ async function handleGetReq(URL) {
 		}
 	} catch (err) {
 		console.error('Error in GET request:', err);
-		return err.response.data;
+		return {
+			...err.response,
+			status: err.response.status > 499 ? 'error' : 'fail',
+			message: `${
+				err.response.status > 499 ? 'server error' : 'Failed'
+			} while fetching the data`,
+		};
 	}
 }
 
@@ -120,7 +127,7 @@ async function makeBooking(data) {
 	const URL = BASE + '/api/Bookings/Create';
 	const filteredData = filterData(data);
 	console.log(data);
-	// return await handlePostReq(URL, filteredData);
+	return await handlePostReq(URL, filteredData);
 }
 
 const getBookingData = async function () {
@@ -169,6 +176,12 @@ async function getPoi(code) {
 	}
 }
 
+async function getPostal(code) {
+	const URL = `https://api.getaddress.io/v2/uk/${code}?api-key=RCX7bLL_a0C5xaApbiBLFQ983`;
+	const res = await handleGetReq(URL);
+	return res;
+}
+
 async function getAllDrivers() {
 	const URL = `https://api.acetaxisdorset.co.uk/api/UserProfile/ListUsers`;
 	return await handleGetReq(URL);
@@ -180,4 +193,5 @@ export {
 	getPoi,
 	makeBookingQuoteRequest,
 	getAllDrivers,
+	getPostal,
 };

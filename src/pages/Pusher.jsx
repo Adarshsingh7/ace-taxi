@@ -30,7 +30,7 @@ export default function Pusher() {
 			<Box
 				sx={{
 					margin: '1vh auto',
-					height: '85vh',
+					// height: '85vh',
 					overflow: 'auto',
 					width: '50%', // Adjusting the width to 50% for the first child Box
 					borderColor: '#e5e7eb',
@@ -66,18 +66,6 @@ export default function Pusher() {
 						/>
 					)}
 				</Box>
-			</Box>
-			<Box
-				className='w-[50vw]'
-				sx={{ width: '50%', padding: 1 }}
-			>
-				<div className='flex gap-1 flex-col'>
-					<div className='w-full h-[40vh] bg-gray-400 m-auto'>map</div>
-					<div className='flex justify-between w-full h-full gap-1'>
-						<div className='w-full h-full bg-pink-400'>part 1</div>
-						<div className='w-full h-full bg-green-400'>part 2</div>
-					</div>
-				</div>
 			</Box>
 		</Box>
 	);

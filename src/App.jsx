@@ -15,6 +15,7 @@ import HashLoader from 'react-spinners/HashLoader';
 import AceScheduler from './pages/Scheduler';
 import Booking from './pages/Booking';
 import Push from './pages/Pusher';
+import Protected from './utils/Protected';
 
 const router = createBrowserRouter([
 	{
@@ -38,7 +39,11 @@ const router = createBrowserRouter([
 			},
 			{
 				path: '/create',
-				element: <Booking />,
+				element: (
+					<Protected>
+						<Booking />,
+					</Protected>
+				),
 			},
 			{
 				path: '/spinner',

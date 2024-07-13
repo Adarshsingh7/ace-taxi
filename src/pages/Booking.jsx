@@ -13,13 +13,15 @@ import SimpleSnackbar from '../components/SnackBar';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Loader from './../components/Loader';
 import dayjs from 'dayjs';
+import { useAuth } from './../hooks/useAuth';
 
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { data } from 'autoprefixer';
 
 function Booking({ bookingData, id }) {
-	const { updateValue, onBooking } = useBooking();
+	const { updateValue, onBooking, deleteBooking } = useBooking();
 	const [isPhoneModelActive, setIsPhoneModelActive] = useState(false);
 	const [isRepeatBookingModelActive, setIsRepeatBookingModelActive] =
 		useState(false);
@@ -27,6 +29,9 @@ function Booking({ bookingData, id }) {
 	const [isQuoteSnackbarActive, setIsQuoteSnackbarActive] = useState(false);
 	const [isDriverModalActive, setDriverModalActive] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState('');
+	const [isQuoteDialogActive, setIsQuoteDialogActive] = useState(false);
+	const [quote, setQuote] = useState(null);
+	const { currentUser, isAuth } = useAuth();
 
 	function toggleAddress() {
 		updateData('DestinationAddress', bookingData.PickupAddress);
@@ -69,25 +74,48 @@ function Booking({ bookingData, id }) {
 		});
 		if (quote.status === 'success') {
 			updateData('Price', quote.totalPrice);
-			setIsQuoteSnackbarActive(true);
-			setSnackbarMessage(
-				`£${quote.totalPrice} for ${quote.durationText} with ${quote.tariff}`
-			);
+			setIsQuoteDialogActive(true);
+			setQuote(quote);
 		} else {
+			setQuote(null);
+			setSnackbarMessage('Failed to get quote');
 			setIsQuoteSnackbarActive(true);
-			setSnackbarMessage('Failed to fetch quote');
 		}
 	}
 
 	function resetPrice() {
 		updateData('Price', '');
+		setQuote(null);
 	}
+
+	function deleteForm() {
+		deleteBooking(id);
+	}
+
+	useEffect(() => {
+		const handleKeyPress = (event) => {
+			if (event.key === 'End') {
+				document.getElementById('myForm').requestSubmit();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyPress);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyPress);
+		};
+	}, []);
+
+	useEffect(() => {
+		updateData('bookedByName', currentUser?.fullName);
+	}, [isAuth]);
 
 	if (!bookingData) return null;
 
 	return (
 		<div className='min-h-screen bg-background text-foreground p-4'>
 			<form
+				id='myForm'
 				action=''
 				onSubmit={handleSubmit}
 			>
@@ -125,12 +153,22 @@ function Booking({ bookingData, id }) {
 							id={id}
 						/>
 					</Modal>
-					<SimpleSnackbar
+					<Modal
+						open={isQuoteDialogActive}
+						setOpen={setIsQuoteDialogActive}
+					>
+						<QuoteDialog
+							onSet={setIsQuoteDialogActive}
+							id={id}
+							quote={quote}
+						/>
+					</Modal>
+					{/* <SimpleSnackbar
 						reset={resetPrice}
 						open={isQuoteSnackbarActive}
 						setOpen={setIsQuoteSnackbarActive}
 						message={snackbarMessage}
-					/>
+					/> */}
 				</>
 				<div className='max-w-3xl mx-auto bg-card p-6 rounded-lg shadow-lg'>
 					<div className='mb-4'>
@@ -226,12 +264,14 @@ function Booking({ bookingData, id }) {
 							onChange={(e) => updateData('PickupAddress', e.target.value)}
 						/> */}
 						<Autocomplete
+							type='address'
 							placeholder='Pickup Address'
 							value={bookingData.PickupAddress}
 							onPushChange={handleAddPickup}
 							onChange={(e) => updateData('PickupAddress', e.target.value)}
 						/>
 						<Autocomplete
+							type='postal'
 							placeholder='Post Code'
 							value={bookingData.PickupPostCode}
 							onPushChange={handleAddPickup}
@@ -262,6 +302,7 @@ function Booking({ bookingData, id }) {
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
 						<Autocomplete
+							type='address'
 							placeholder='Destination Address'
 							value={bookingData.DestinationAddress}
 							onPushChange={handleAddDestination}
@@ -269,6 +310,7 @@ function Booking({ bookingData, id }) {
 						/>
 						<Autocomplete
 							required
+							type='postal'
 							placeholder='Post Code'
 							value={bookingData.DestinationPostCode}
 							onPushChange={handleAddDestination}
@@ -283,7 +325,7 @@ function Booking({ bookingData, id }) {
 							placeholder='Booking Details'
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 							value={bookingData.BookingDetails}
-							onChange={(e) => updateData('BookingDetails', e.target.value)}
+							onChange={(e) => updateData('details', e.target.value)}
 						></textarea>
 					</div>
 
@@ -325,7 +367,11 @@ function Booking({ bookingData, id }) {
 					</div>
 
 					<div className='mb-4'>
-						<LongButton onClick={findQuote}>Get Quote</LongButton>
+						{quote ? (
+							<LongButton onClick={resetPrice}>Reset Price</LongButton>
+						) : (
+							<LongButton onClick={findQuote}>Get Quote</LongButton>
+						)}
 					</div>
 
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
@@ -441,7 +487,7 @@ function Booking({ bookingData, id }) {
 
 					<div className='mb-4'>
 						<Input
-							required
+							required={true}
 							type='email'
 							placeholder='Email'
 							value={bookingData.Email}
@@ -450,8 +496,40 @@ function Booking({ bookingData, id }) {
 						/>
 					</div>
 
+					{currentUser?.isAdmin ? (
+						<>
+							<p>options</p>
+							<div className='options mb-4 flex justify-between gap-3'>
+								{/* <Input
+							type='text'
+							placeholder='Payment Status'
+							value={bookingData.options}
+							onChange={(e) => updateData('options', e.target.value)}
+							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
+						/> */}
+								<select
+									name='option'
+									id='options'
+									className='block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
+								>
+									<option value='paid'>Paid</option>
+									<option value='await'>Awaiting payment</option>
+								</select>
+								<select
+									name='option'
+									id='options'
+									className='block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
+								>
+									<option value='cast'>Cash</option>
+									<option value='account'>Account</option>
+									<option value='rank'>Rank</option>
+									<option value='all'>All</option>
+								</select>
+							</div>
+						</>
+					) : null}
+
 					<div className='flex justify-between gap-5 mb-5'>
-						<LongButton>Options</LongButton>
 						<LongButton onClick={() => setDriverModalActive(true)}>
 							Allocate Driver
 						</LongButton>
@@ -459,6 +537,7 @@ function Booking({ bookingData, id }) {
 
 					<div className='flex justify-end space-x-4'>
 						<button
+							onClick={deleteForm}
 							className='bg-muted text-muted-foreground px-4 py-2 rounded-lg bg-gray-100'
 							type='button'
 						>
@@ -504,8 +583,6 @@ function PhoneCheckModal({ setOpen }) {
 			</div>
 			<div className='flex gap-5 mb-5'>
 				<TextField
-					// error
-					// helperText='Incorrect entry.'
 					id='standard-error-helper-text'
 					label='Phone Number'
 					variant='standard'
@@ -861,12 +938,14 @@ const AddEditViaComponent = ({ onSet, id }) => {
 
 			<div className='space-y-4'>
 				<Autocomplete
+					type='address'
 					placeholder='Add Via Address'
 					value={newViaAddress}
 					onChange={(e) => setNewViaAddress(e.target.value)}
 					onPushChange={handleSelectAutocomplete}
 				/>
 				<Autocomplete
+					type='postal'
 					placeholder='Add Via PostCode'
 					value={newViaPostcode}
 					onChange={(e) => setNewViaPostcode(e.target.value)}
@@ -953,15 +1032,15 @@ function VIABar({ data, onEdit, isEditing, setEditingItem }) {
 	);
 }
 
-function Input({ value, onChange, placeholder, type }) {
+function Input({ value, onChange, type, placeholder, required }) {
 	return (
 		<TextField
+			required={required}
 			type={type}
 			value={value}
 			onChange={onChange}
 			id='outlined-uncontrolled'
 			label={placeholder}
-			defaultValue='foo'
 		/>
 	);
 }
@@ -1018,6 +1097,48 @@ function ListDrivers({ onSet, id }) {
 							</div>
 						))
 					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function QuoteDialog({ onSet, quote }) {
+	console.log(quote);
+
+	return (
+		<div className='flex items-center justify-center bg-gray-100 rounded-lg'>
+			<div className='bg-white p-6 rounded-lg shadow-lg max-w-xs w-full px-20'>
+				<div className='flex justify-center mb-4'>
+					<div className='bg-red-100 rounded-full p-2'>
+						<AccountCircleIcon />
+					</div>
+				</div>
+				<div className='text-center mb-4'>
+					<h2 className='text-lg font-semibold'>Booking Quote</h2>
+				</div>
+				<div className='bg-green-700 text-white p-4 rounded-lg text-center mb-4'>
+					<p className='text-2xl font-bold'>£{quote.totalPrice.toFixed(2)}</p>
+					<p className='text-sm'>{quote.tariff}</p>
+				</div>
+				<div className='text-center mb-2'>
+					<p className='text-gray-600'>Journey Time</p>
+					<p className='text-lg font-semibold'>{quote.totalMileage} Miles</p>
+				</div>
+				<div className='text-center mb-6'>
+					<p className='text-gray-600'>Distance</p>
+					<p className='text-lg font-semibold'>
+						{Math.floor(quote.totalMinutes / 60)} Hour(s){' '}
+						{quote.totalMinutes % 60} Minutes
+					</p>
+				</div>
+				<div className='text-center'>
+					<button
+						className='bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600'
+						onClick={() => onSet(false)}
+					>
+						Close
+					</button>
 				</div>
 			</div>
 		</div>

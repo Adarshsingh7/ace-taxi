@@ -8,7 +8,7 @@ const style = {
 	top: '40%',
 	left: '50%',
 	transform: 'translate(-50%, -50%)',
-	width: 400,
+	// width: 400,
 	boxShadow: 24,
 };
 
@@ -23,6 +23,9 @@ export default function BasicModal({ children, open, setOpen }) {
 				onClose={handleClose}
 				aria-labelledby='modal-modal-title'
 				aria-describedby='modal-modal-description'
+				BackdropProps={{
+					onClick: (event) => event.stopPropagation(),
+				}}
 			>
 				<Box sx={style}>{children}</Box>
 			</Modal>

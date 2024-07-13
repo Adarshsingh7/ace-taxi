@@ -76,14 +76,14 @@ function Login() {
 								placeholder='••••••••'
 							/>
 						</div>
-						<div className='flex items-center justify-between mb-6'>
+						{/* <div className='flex items-center justify-between mb-6'>
 							<a
 								href='#'
 								className='text-sm text-blue-500 hover:underline'
 							>
 								Forgot Password?
 							</a>
-						</div>
+						</div> */}
 						<button
 							type='submit'
 							className='w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600'
@@ -91,7 +91,7 @@ function Login() {
 							Login
 						</button>
 					</form>
-					<div className='mt-6 text-center'>
+					{/* <div className='mt-6 text-center'>
 						<p className='text-zinc-700'>
 							For Sign Up{' '}
 							<Link
@@ -101,7 +101,7 @@ function Login() {
 								Register Here
 							</Link>
 						</p>
-					</div>
+					</div> */}
 				</div>
 			</div>
 		</div>

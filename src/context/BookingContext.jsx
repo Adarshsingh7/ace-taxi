@@ -16,6 +16,7 @@ const BookingContext = createContext();
 const initState = [
 	{
 		returnBooking: false,
+		bookedByName: '',
 		PickupAddress: '',
 		PickupPostCode: '',
 		DestinationAddress: '',
@@ -26,8 +27,8 @@ const initState = [
 		vias: [],
 		Passengers: 1,
 		hours: 0,
-		minutes: 0,
-		durationText: '0',
+		minutes: 5,
+		durationText: '5',
 		isAllDay: false,
 		PassengerName: '',
 		PhoneNumber: '',
@@ -46,7 +47,7 @@ const initState = [
 			fri: true,
 			sat: false,
 		},
-		bookingDetails: '',
+		details: '',
 		Price: '',
 		changeFromBase: false,
 		paymentStatus: 'none',
@@ -89,7 +90,7 @@ function reducer(state, action) {
 				}
 				return item;
 			});
-		case 'submitBooking':
+		case 'endBooking':
 			return action.payload.itemIndex === 0
 				? state.map((item, idx) => (idx === 0 ? initState[0] : item))
 				: state.filter((item, index) => index !== action.payload.itemIndex);
@@ -118,8 +119,13 @@ function BookingProvider({ children }) {
 	async function onBooking(itemIndex) {
 		const targetBooking = data[itemIndex];
 		const res = await makeBooking(targetBooking);
-		console.log(res);
-		dispacher({ type: 'submitBooking', payload: { itemIndex } });
+		if (res.status === 'success') {
+			dispacher({ type: 'endBooking', payload: { itemIndex } });
+		}
+	}
+
+	async function deleteBooking(itemIndex) {
+		dispacher({ type: 'endBooking', payload: { itemIndex } });
 	}
 
 	// this is the caller id use effect it will trigger dialog box when the caller id is received
@@ -154,6 +160,7 @@ function BookingProvider({ children }) {
 				callerId,
 				updateValue,
 				onBooking,
+				deleteBooking,
 				insertData,
 				callerTab: data,
 				addVia,

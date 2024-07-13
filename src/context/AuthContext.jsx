@@ -1,6 +1,7 @@
 /** @format */
 
 import { createContext, useState, useEffect } from 'react';
+import { getAllDrivers } from '../utils/apiReq';
 const BASEURL = import.meta.env.VITE_API_ACE_LIVEURL;
 
 const AuthContext = createContext({
@@ -32,6 +33,7 @@ const AuthProvider = ({ children }) => {
 				const data = await response.json();
 				console.log(data);
 				setCurrentUser(data);
+				getUserRole(data);
 				setIsAuth(true);
 				setToken(data.token); // Assuming response contains a token
 				setUsername(credentials.username);
@@ -68,6 +70,7 @@ const AuthProvider = ({ children }) => {
 			if (response.ok) {
 				const data = await response.json();
 				setCurrentUser(data);
+				getUserRole(data);
 				setIsAuth(true);
 			} else {
 				console.log(response);
@@ -123,6 +126,18 @@ const AuthProvider = ({ children }) => {
 			setIsLoading(false);
 		}
 	}, []); // Run only on component mount
+
+	function getUserRole(currentUser) {
+		getAllDrivers().then((res) => {
+			const allUsers = res.users;
+			const user = allUsers.find((user) => user.id === currentUser.id);
+			if (user.role === 1) {
+				setCurrentUser((prev) => ({ ...prev, isAdmin: true }));
+			} else {
+				setCurrentUser((prev) => ({ ...prev, isAdmin: false }));
+			}
+		});
+	}
 
 	const value = {
 		currentUser,
