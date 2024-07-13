@@ -54,6 +54,7 @@ const initState = [
 		paymentStatus: 0,
 		driver: {},
 		accountNumber: 0,
+		priceAccount: 0,
 		userId: '',
 	},
 ];

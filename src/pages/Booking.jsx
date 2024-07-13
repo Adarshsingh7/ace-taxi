@@ -368,10 +368,14 @@ function Booking({ bookingData, id }) {
 					</div>
 
 					<div className='mb-4'>
-						{quote ? (
-							<LongButton onClick={resetPrice}>Reset Price</LongButton>
-						) : (
-							<LongButton onClick={findQuote}>Get Quote</LongButton>
+						{bookingData.scope !== 1 && (
+							<>
+								{quote ? (
+									<LongButton onClick={resetPrice}>Reset Price</LongButton>
+								) : (
+									<LongButton onClick={findQuote}>Get Quote</LongButton>
+								)}
+							</>
 						)}
 					</div>
 
@@ -493,6 +497,20 @@ function Booking({ bookingData, id }) {
 							onChange={(e) => updateData('Email', e.target.value)}
 							className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
 						/>
+						{bookingData.scope === 1 ? (
+							<Input
+								type='number'
+								placeholder='Price Account'
+								value={bookingData.priceAccount}
+								onChange={(e) => {
+									const newValue = parseFloat(e.target.value);
+									if (!isNaN(newValue) && newValue >= 0) {
+										return updateData('priceAccount', +e.target.value);
+									}
+								}}
+								className='w-full bg-input text-foreground p-2 rounded-lg border border-border'
+							/>
+						) : null}
 					</div>
 
 					{currentUser?.isAdmin ? (
