@@ -35,7 +35,11 @@ const router = createBrowserRouter([
 			},
 			{
 				path: '/pusher',
-				element: <Push />,
+				element: (
+					<Protected>
+						<Push />
+					</Protected>
+				),
 			},
 			{
 				path: '/create',

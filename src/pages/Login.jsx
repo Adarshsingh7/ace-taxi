@@ -19,7 +19,7 @@ function Login() {
 
 	useEffect(() => {
 		if (isAuth) {
-			navigation(-1, { replace: true });
+			navigation('/pusher', { replace: true });
 		}
 	}, [isAuth, navigation]);
 
