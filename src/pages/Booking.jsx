@@ -41,7 +41,14 @@ function Booking({ bookingData, id }) {
 
 	function handleSubmit(e) {
 		e.preventDefault();
-		onBooking(id);
+		const { status } = onBooking(id);
+		if (status !== 'success') {
+			setSnackbarMessage('Failed to create booking');
+			setIsQuoteSnackbarActive(true);
+		} else {
+			setSnackbarMessage('booking created create');
+			setIsQuoteSnackbarActive(true);
+		}
 	}
 
 	function updateData(property, val) {
@@ -163,12 +170,12 @@ function Booking({ bookingData, id }) {
 							quote={quote}
 						/>
 					</Modal>
-					{/* <SimpleSnackbar
-						reset={resetPrice}
+					<SimpleSnackbar
+						disableReset={true}
 						open={isQuoteSnackbarActive}
 						setOpen={setIsQuoteSnackbarActive}
 						message={snackbarMessage}
-					/> */}
+					/>
 				</>
 				<div className='max-w-3xl mx-auto bg-card p-6 rounded-lg shadow-lg'>
 					<div className='mb-4'>
@@ -358,9 +365,9 @@ function Booking({ bookingData, id }) {
 							<span className='mr-2'>Charge From Base</span>
 							<Switch
 								color='error'
-								checked={bookingData.changeFromBase}
+								checked={bookingData.chargeFromBase}
 								onChange={() =>
-									updateData('changeFromBase', !bookingData.changeFromBase)
+									updateData('chargeFromBase', !bookingData.chargeFromBase)
 								}
 							/>
 						</label>
@@ -383,6 +390,7 @@ function Booking({ bookingData, id }) {
 							<span>£</span>
 							<Input
 								type='number'
+								required={true}
 								placeholder='Driver Price (£)'
 								value={bookingData.Price}
 								onChange={(e) =>

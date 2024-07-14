@@ -50,7 +50,7 @@ const initState = [
 		details: '',
 		Price: '',
 		scope: 0,
-		changeFromBase: false,
+		chargeFromBase: false,
 		paymentStatus: 0,
 		driver: {},
 		accountNumber: 0,
@@ -123,6 +123,9 @@ function BookingProvider({ children }) {
 		const res = await makeBooking(targetBooking);
 		if (res.status === 'success') {
 			dispacher({ type: 'endBooking', payload: { itemIndex } });
+			return { status: 'success' };
+		} else {
+			return { status: 'error', message: res.message };
 		}
 	}
 
