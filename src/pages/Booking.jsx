@@ -41,14 +41,16 @@ function Booking({ bookingData, id }) {
 
 	function handleSubmit(e) {
 		e.preventDefault();
-		const { status } = onBooking(id);
-		if (status !== 'success') {
-			setSnackbarMessage('Failed to create booking');
-			setIsQuoteSnackbarActive(true);
-		} else {
-			setSnackbarMessage('booking created create');
-			setIsQuoteSnackbarActive(true);
-		}
+		onBooking(id).then(({ status }) => {
+			console.log(status);
+			if (status !== 'success') {
+				setSnackbarMessage('Failed to create booking');
+				setIsQuoteSnackbarActive(true);
+			} else {
+				setSnackbarMessage('booking created create');
+				setIsQuoteSnackbarActive(true);
+			}
+		});
 	}
 
 	function updateData(property, val) {
