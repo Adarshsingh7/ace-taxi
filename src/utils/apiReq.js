@@ -45,7 +45,7 @@ function filterData(data) {
 		priceAccount: data.priceAccount || 0,
 		chargeFromBase: data.chargeFromBase || false,
 		userId: data.userId || null,
-		returnDateTime: data.ReturnDateTime || null,
+		returnDateTime: data.returnTime || null,
 		vias: data.vias || [],
 		accountNumber: data.accountNumber,
 		bookedByName: data.bookedByName || '',
