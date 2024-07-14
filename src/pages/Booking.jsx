@@ -503,6 +503,8 @@ function Booking({ bookingData, id }) {
 								value={bookingData.priceAccount}
 								onChange={(e) => {
 									const newValue = parseFloat(e.target.value);
+									if (e.target.value === '')
+										return updateData('priceAccount', '');
 									if (!isNaN(newValue) && newValue >= 0) {
 										return updateData('priceAccount', +e.target.value);
 									}
