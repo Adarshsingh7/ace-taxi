@@ -18,7 +18,6 @@ import { useAuth } from './../hooks/useAuth';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { data } from 'autoprefixer';
 
 function Booking({ bookingData, id }) {
 	const { updateValue, onBooking, deleteBooking } = useBooking();
@@ -954,7 +953,7 @@ const AddEditViaComponent = ({ onSet, id }) => {
 		if (newViaAddress || newViaPostcode) {
 			setVias([
 				...vias,
-				{ address: newViaAddress, postcode: newViaPostcode, id: Date.now() },
+				{ address: newViaAddress, postcode: newViaPostcode, id: vias.length },
 			]);
 			setNewViaAddress('');
 			setNewViaPostcode('');
