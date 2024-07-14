@@ -2,6 +2,8 @@
 import { createContext, useEffect, useReducer, useState } from 'react';
 import { getBookingData, makeBooking } from './../utils/apiReq';
 import Pusher from 'pusher-js';
+import { useBooking } from '../hooks/useBooking';
+import { useAuth } from '../hooks/useAuth';
 
 // connect to pusher for the caller id event
 const pusher = new Pusher('8d1879146140a01d73cf', {
@@ -103,6 +105,7 @@ function reducer(state, action) {
 }
 
 function BookingProvider({ children }) {
+	const { currentUser, isAuth } = useAuth();
 	const [data, dispacher] = useReducer(reducer, initState);
 	const [callerId, setCallerId] = useState({});
 
@@ -135,6 +138,8 @@ function BookingProvider({ children }) {
 
 	// this is the caller id use effect it will trigger dialog box when the caller id is received
 	useEffect(() => {
+		if (!isAuth) return;
+		if (!currentUser.isAdmin) return;
 		function handleBind(data) {
 			try {
 				const parsedData = JSON.parse(data.message);
