@@ -39,10 +39,8 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value, type }) => {
 		async function getPostalID() {
 			const response = await getPostal(inputValue);
 			if (response.status === 'success') {
-				console.log(response.Addresses);
 				setOptions(
 					response.Addresses.map((item) => {
-						console.log(item);
 						const filteredAddress = item
 							.split(',')
 							.map((part) => part.trim())
@@ -75,7 +73,6 @@ const Autocomplete = ({ placeholder, onPushChange, onChange, value, type }) => {
 	};
 
 	const handleSelectOption = (option) => {
-		console.log(option);
 		onPushChange(option.address, option.postcode);
 		setOptions(options.filter((opt) => opt.label !== option.label));
 		setShowOptions(false);

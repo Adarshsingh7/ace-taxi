@@ -7,7 +7,7 @@ const BookingTable = ({ bookings, onConfirm, onSet }) => {
 	const [activeTab, setActiveTab] = useState('current-bookings');
 	const [selectedRow, setSelectedRow] = useState(null);
 	const isEmpty =
-		bookings.Current.length === 0 || bookings.Previous.length === 0;
+		bookings.Current.length === 0 && bookings.Previous.length === 0;
 
 	const handleTabClick = (tab) => {
 		setActiveTab(tab);
