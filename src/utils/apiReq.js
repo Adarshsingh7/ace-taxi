@@ -195,14 +195,11 @@ async function getAccountList() {
 		const formatedData = Object.keys(data).map((el) => data[el]);
 		localStorage.setItem(
 			'accounts',
-			JSON.stringify([...formatedData, { accNo: 0, accountName: 'select' }])
+			JSON.stringify([{ accNo: 0, accountName: 'select-233' }, ...formatedData])
 		);
 	}
 }
 
-if (!localStorage.getItem('accounts')) {
-	getAccountList();
-}
 export {
 	getBookingData,
 	makeBooking,

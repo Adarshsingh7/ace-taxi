@@ -1,6 +1,7 @@
 /** @format */
 
 import { createContext, useState, useEffect } from 'react';
+import { getAccountList } from '../utils/apiReq';
 import { getAllDrivers } from '../utils/apiReq';
 const BASEURL = 'https://abacusonline-001-site1.atempurl.com';
 
@@ -31,13 +32,11 @@ const AuthProvider = ({ children }) => {
 
 			if (response.ok) {
 				const data = await response.json();
-				console.log(data);
 				setCurrentUser(data);
 				getUserRole(data);
 				setIsAuth(true);
 				setToken(data.token); // Assuming response contains a token
 				setUsername(credentials.username);
-				console.log(data);
 				alert('Login successful');
 			} else {
 				const data = await response.json();
@@ -72,8 +71,8 @@ const AuthProvider = ({ children }) => {
 				setCurrentUser(data);
 				getUserRole(data);
 				setIsAuth(true);
+				getAccountList();
 			} else {
-				console.log(response);
 				console.error('Get user failed:', response.statusText);
 				// Handle get user failure
 			}

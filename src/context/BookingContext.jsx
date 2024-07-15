@@ -2,7 +2,6 @@
 import { createContext, useEffect, useReducer, useState } from 'react';
 import { getBookingData, makeBooking } from './../utils/apiReq';
 import Pusher from 'pusher-js';
-import { useBooking } from '../hooks/useBooking';
 import { useAuth } from '../hooks/useAuth';
 
 // connect to pusher for the caller id event
@@ -143,7 +142,6 @@ function BookingProvider({ children }) {
 		function handleBind(data) {
 			try {
 				const parsedData = JSON.parse(data.message);
-				console.log(parsedData);
 				setCallerId(parsedData);
 			} catch (error) {
 				console.error('Failed to parse message data:', error);

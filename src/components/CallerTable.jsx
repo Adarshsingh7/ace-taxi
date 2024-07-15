@@ -124,7 +124,6 @@ const BookingTable = ({ bookings, onConfirm, onSet }) => {
 };
 
 function CurrentTable({ bookings, selectedRow, selectRow }) {
-	console.log(bookings);
 	const rows = ['Pickup Address', 'Destination Address', 'Name', 'Price'];
 
 	if (bookings.length === 0) return <div>No bookings</div>;

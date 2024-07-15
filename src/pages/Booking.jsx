@@ -5,7 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { RRule } from 'rrule';
 import { useBooking } from '../hooks/useBooking';
 import Autocomplete from '../components/AutoComplete';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import Modal from '../components/Modal';
 import Dragger from '../components/Dragger';
 import { makeBookingQuoteRequest, getAllDrivers } from '../utils/apiReq';
@@ -42,7 +42,6 @@ function Booking({ bookingData, id }) {
 	function handleSubmit(e) {
 		e.preventDefault();
 		onBooking(id).then(({ status }) => {
-			console.log(status);
 			if (status !== 'success') {
 				setSnackbarMessage('Failed to create booking');
 				setIsQuoteSnackbarActive(true);
@@ -572,7 +571,9 @@ function Booking({ bookingData, id }) {
 								// 	type={'scope'}
 								// />
 								<div>
-									<p className='text-gray-700 text-sm'>account number</p>
+									<p className='text-gray-700 text-sm capitalize'>
+										Account number
+									</p>
 									<select
 										name='account'
 										id='account'
@@ -582,20 +583,19 @@ function Booking({ bookingData, id }) {
 										}
 										className='mb-10 block w-full mt-1 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
 									>
-										{JSON.parse(localStorage.getItem('accounts')).map((el) => (
-											<>
-												{el.accountName && (
-													<option
-														key={el.accNo}
-														value={el.accNo}
-													>
-														{el.accNo === 0
-															? 'select'
-															: `${el.accNo}-${el.accountName}`}
-													</option>
-												)}
-											</>
-										))}
+										{JSON.parse(localStorage.getItem('accounts')).map(
+											(el, i) => (
+												<Fragment key={i}>
+													{el.accountName && (
+														<option value={el.accNo}>
+															{el.accNo === 0
+																? 'select'
+																: `${el.accNo}-${el.accountName}`}
+														</option>
+													)}
+												</Fragment>
+											)
+										)}
 									</select>
 								</div>
 							) : null}
@@ -1178,8 +1178,6 @@ function ListDrivers({ onSet, id }) {
 }
 
 function QuoteDialog({ onSet, quote }) {
-	console.log(quote);
-
 	return (
 		<div className='flex items-center justify-center bg-gray-100 rounded-lg'>
 			<div className='bg-white p-6 rounded-lg shadow-lg max-w-xs w-full px-20'>

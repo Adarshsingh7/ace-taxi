@@ -47,7 +47,6 @@ const AceScheduler = () => {
 
 	useEffect(() => {
 		getBookingData().then((data) => {
-			console.log(data);
 			if (data.status === 'success') {
 				setData(data.bookings);
 				localStorage.setItem('bookings', JSON.stringify(data.bookings));
