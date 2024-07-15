@@ -11,7 +11,7 @@ function AppLayout() {
 		<AuthProvider>
 			<BookingProvider>
 				<CallerIdPopUp />
-				{/* <Header /> */}
+				<Header />
 				<Outlet />
 			</BookingProvider>
 		</AuthProvider>

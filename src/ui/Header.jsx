@@ -12,7 +12,7 @@ const Navbar = () => {
 	return (
 		<nav className='sticky top-0 z-50 flex justify-between items-center bg-zinc-900 text-white p-4'>
 			<span className='flex gap-10'>
-				<Link
+				{/* <Link
 					to='/'
 					className='text-lg font-bold'
 				>
@@ -23,7 +23,7 @@ const Navbar = () => {
 					className='text-lg font-bold'
 				>
 					APP
-				</Link>
+				</Link> */}
 				<Link
 					to='/pusher'
 					className='text-lg font-bold uppercase'
@@ -34,12 +34,13 @@ const Navbar = () => {
 
 			<span className='flex gap-10'>
 				{!isAuth ? (
-					<button
-						className='bg-blue-500 text-white px-4 py-2 rounded-lg'
-						onClick={() => navigate('/login')}
-					>
-						Login
-					</button>
+					// <button
+					// 	className='bg-blue-500 text-white px-4 py-2 rounded-lg'
+					// 	onClick={() => navigate('/login')}
+					// >
+					// 	Login
+					// </button>
+					<></>
 				) : (
 					<button
 						className='bg-blue-500 text-white px-4 py-2 rounded-lg'
@@ -51,7 +52,7 @@ const Navbar = () => {
 						logout
 					</button>
 				)}
-				<MuiMenu />
+				{/* <MuiMenu /> */}
 			</span>
 		</nav>
 	);
