@@ -139,7 +139,7 @@ function BookingProvider({ children }) {
 	// this is the caller id use effect it will trigger dialog box when the caller id is received
 	useEffect(() => {
 		if (!isAuth) return;
-		if (!currentUser.isAdmin) return;
+		if (currentUser && !currentUser.isAdmin) return;
 		function handleBind(data) {
 			try {
 				const parsedData = JSON.parse(data.message);
@@ -153,7 +153,7 @@ function BookingProvider({ children }) {
 		return () => {
 			channel.unbind('my-event', handleBind);
 		};
-	}, []);
+	}, [currentUser]);
 
 	// this use effect will refresh the booking every single minute
 	useEffect(() => {
